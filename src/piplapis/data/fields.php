@@ -214,7 +214,7 @@ abstract class PiplApi_Field
             {
                 $value = $this->internal_params[$key];
                 
-                if (isset($value) && method_exists($value, 'to_dict'))
+                if (isset($value) && is_object($value) && method_exists($value, 'to_dict'))
                 {
                     $value = $value->to_dict();
                 }
