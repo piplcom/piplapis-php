@@ -44,6 +44,8 @@ class PiplApi_NameAPIRequest
     // a last-name.
     
     private static $BASE_URL = 'http://api.pipl.com/name/v2/json/?';
+	// HTTPS is also supported:
+    //private static $BASE_URL = 'https://api.pipl.com/name/v2/json/?';
     
     private $api_key;
     public $name;

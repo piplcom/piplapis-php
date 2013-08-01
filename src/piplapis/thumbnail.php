@@ -18,6 +18,8 @@ require_once dirname(__FILE__) . '/data/utils.php';
 require_once dirname(__FILE__) . '/data/fields.php';
 
 define('PIPLAPI_THUMB_BASE_URL', 'http://api.pipl.com/thumbnail/v2/?');
+// HTTPS is also supported:
+//define('PIPLAPI_THUMB_BASE_URL', 'https://api.pipl.com/thumbnail/v2/?');
 define('PIPLAPI_THUMB_MAX_PIXELS', 500);
 
 class PiplApi_ThumbnailApi
