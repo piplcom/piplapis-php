@@ -68,7 +68,7 @@ class PiplApi_SearchAPIRequest
     private $_prioritize_records_by;
     
     private static $BASE_URL = 'http://api.pipl.com/search/v3/json/?';
-	// HTTPS is also supported:
+    // HTTPS is also supported:
     //private static $BASE_URL = 'https://api.pipl.com/search/v3/json/?';
     
     function __construct($params=array())
