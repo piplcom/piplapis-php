@@ -10,7 +10,7 @@ Library Requirements
 --------------------
 
 * PHP 5.2.17 and above.
-* Make sure php-curl is enabled (Windows: in the php.ini file uncomment `;extension=php_curl.dll`, Linux: `apt-get install php5-curl`).
+* Make sure php-curl is enabled (Windows: in the php.ini file uncomment `;extension=php_curl.dll`, Linux (Debian derivatives): `apt-get install php5-curl`).
 
 Getting Started & Code Snippets
 -------------------------------
@@ -18,10 +18,6 @@ Getting Started & Code Snippets
 **Pipl's Search API**
 * Getting started tutorial - [http://dev.pipl.com/docs/search_api/getstarted](http://dev.pipl.com/docs/search_api/getstarted)  
 * Code snippets - [http://dev.pipl.com/docs/search_api/code](http://dev.pipl.com/docs/search_api/code)  
-
-**Pipl's Name API**
-* Getting started tutorial - [http://dev.pipl.com/docs/name_api/getstarted](http://dev.pipl.com/docs/name_api/getstarted)  
-* Code snippets - [http://dev.pipl.com/docs/name_api/code](http://dev.pipl.com/docs/name_api/code)  
 
 **Pipl's Thumbnail API**
 * Getting started tutorial - [http://dev.pipl.com/docs/thumbnail_api/getstarted](http://dev.pipl.com/docs/thumbnail_api/getstarted)  

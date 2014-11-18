@@ -442,20 +442,23 @@ class PiplApi_SearchAPIRequest
             }
         }
     }
-        
-    public function url()
-    {
-        // The URL of the request (string).
+
+    public function get_query_params(){
         $query = array(
             'key' => !empty($this->api_key) ? $this->api_key : PiplApi_SearchApi::$default_api_key,
             'person' => PiplApi_Serializable::to_json($this->person),
             'query_params_mode' => $this->query_params_mode,
             'exact_name' => $this->exact_name,
             'prioritize_records_by' => implode(',', $this->_prioritize_records_by),
-            'filter_records_by' => $this->_filter_records_by
+            'filter_records_by' => implode(",", $this->_filter_records_by)
         );
-        
-        return self::$BASE_URL . http_build_query($query);
+	return $query;
+
+    } 
+    public function url()
+    {
+        // The URL of the request (string).
+        return self::$BASE_URL . http_build_query($this->get_query_params());
     }
 
     public function send($strict_validation=true)
@@ -483,16 +486,18 @@ class PiplApi_SearchAPIRequest
         // }
 
         $this->validate_query_params($strict_validation);
-        
+        $url = self::$BASE_URL;
+       	
         $curl = curl_init();
-        
+        $params = $this->get_query_params();
         curl_setopt_array($curl, array( CURLOPT_RETURNTRANSFER => 1,
-                                                   CURLOPT_URL => $this->url(),
-                                                   CURLOPT_USERAGENT => PIPLAPI_USERAGENT ));
+                                                   CURLOPT_URL => $url,
+						   CURLOPT_USERAGENT => PIPLAPI_USERAGENT,
+						   CURLOPT_POST => count($params),
+					   CURLOPT_POSTFIELDS => $params));
         
         $resp = curl_exec($curl);
         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        
         if (in_array($http_status, range(200, 299))) // success
         {
             return PiplApi_Serializable::from_json('PiplApi_SearchAPIResponse', $resp);
