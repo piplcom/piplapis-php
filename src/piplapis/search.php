@@ -625,7 +625,7 @@ class PiplApi_SearchAPIResponse
         // The return value is an array, a key in this array is a domain
         // and the value is a list of all the records with this domain.
 
-        $key_function = create_function('$x', 'return $x->source->domain');
+        $key_function = create_function('$x', 'return $x->source->domain;');
         return $this->group_records($key_function);
     }
     
@@ -636,7 +636,7 @@ class PiplApi_SearchAPIResponse
         // The return value is an array, a key in this array is a category
         // and the value is a list of all the records with this category.
 
-        $key_function = create_function('$x', 'return $x->source->category');
+        $key_function = create_function('$x', 'return $x->source->category;');
         return $this->group_records($key_function);
     }
     
@@ -648,7 +648,7 @@ class PiplApi_SearchAPIResponse
         // bool (so the keys can be just True or False) and the value is a list 
         // of all the records with this query_params_match value.
 
-        $key_function = create_function('$x', 'return $x->query_params_match');
+        $key_function = create_function('$x', 'return $x->query_params_match;');
         return $this->group_records($key_function);
     }
     
@@ -660,7 +660,7 @@ class PiplApi_SearchAPIResponse
         // float and the value is a list of all the records with this 
         // query_person_match value.
 
-        $key_function = create_function('$x', 'return $x->query_person_match');
+        $key_function = create_function('$x', 'return $x->query_person_match;');
         return $this->group_records($key_function);
     }
     
