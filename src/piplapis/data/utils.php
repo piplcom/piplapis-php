@@ -11,27 +11,28 @@ $piplapi_countries = array(
     'BD'=> 'Bangladesh', 'WF'=> 'Wallis And Futuna Islands', 'BF'=> 'Burkina Faso', 'PY'=> 'Paraguay', 'BA'=> 'Bosnia And Herzegovina', 'BB'=> 'Barbados', 'BE'=> 'Belgium', 'BM'=> 'Bermuda', 'BN'=> 'Brunei Darussalam', 'BO'=> 'Bolivia', 'BH'=> 'Bahrain', 'BI'=> 'Burundi', 'BJ'=> 'Benin', 'BT'=> 'Bhutan', 'JM'=> 'Jamaica', 'BV'=> 'Bouvet Island', 'BW'=> 'Botswana', 'WS'=> 'Samoa', 'BR'=> 'Brazil', 'BS'=> 'Bahamas', 'JE'=> 'Jersey', 'BY'=> 'Belarus', 'BZ'=> 'Belize', 'RU'=> 'Russian Federation', 'RW'=> 'Rwanda', 'LT'=> 'Lithuania', 'RE'=> 'Reunion', 'TM'=> 'Turkmenistan', 'TJ'=> 'Tajikistan', 'RO'=> 'Romania', 'LS'=> 'Lesotho', 'GW'=> 'Guinea-bissa', 'GU'=> 'Guam', 'GT'=> 'Guatemala', 'GS'=> 'South Georgia And South Sandwich Islands', 'GR'=> 'Greece', 'GQ'=> 'Equatorial Guinea', 'GP'=> 'Guadeloupe', 'JP'=> 'Japan', 'GY'=> 'Guyana', 'GG'=> 'Guernsey', 'GF'=> 'French Guiana', 'GE'=> 'Georgia', 'GD'=> 'Grenada', 'GB'=> 'Great Britain', 'GA'=> 'Gabon', 'GN'=> 'Guinea', 'GM'=> 'Gambia', 'GL'=> 'Greenland', 'GI'=> 'Gibraltar', 'GH'=> 'Ghana', 'OM'=> 'Oman', 'TN'=> 'Tunisia', 'JO'=> 'Jordan', 'HR'=> 'Croatia', 'HT'=> 'Haiti', 'SV'=> 'El Salvador', 'HK'=> 'Hong Kong', 'HN'=> 'Honduras', 'HM'=> 'Heard And Mcdonald Islands', 'AD'=> 'Andorra', 'PR'=> 'Puerto Rico', 'PS'=> 'Palestine', 'PW'=> 'Pala', 'PT'=> 'Portugal', 'SJ'=> 'Svalbard And Jan Mayen Islands', 'VG'=> 'Virgin Islands, British', 'AI'=> 'Anguilla', 'KP'=> 'North Korea', 'PF'=> 'French Polynesia', 'PG'=> 'Papua New Guinea', 'PE'=> 'Per', 'PK'=> 'Pakistan', 'PH'=> 'Philippines', 'PN'=> 'Pitcairn', 'PL'=> 'Poland', 'PM'=> 'Saint Pierre And Miquelon', 'ZM'=> 'Zambia', 'EH'=> 'Western Sahara', 'EE'=> 'Estonia', 'EG'=> 'Egypt', 'ZA'=> 'South Africa', 'EC'=> 'Ecuador', 'IT'=> 'Italy', 'AO'=> 'Angola', 'KZ'=> 'Kazakhstan', 'ET'=> 'Ethiopia', 'ZW'=> 'Zimbabwe', 'SA'=> 'Saudi Arabia', 'ES'=> 'Spain', 'ER'=> 'Eritrea', 'ME'=> 'Montenegro', 'MD'=> 'Moldova', 'MG'=> 'Madagascar', 'MA'=> 'Morocco', 'MC'=> 'Monaco', 'UZ'=> 'Uzbekistan', 'MM'=> 'Myanmar', 'ML'=> 'Mali', 'MO'=> 'Maca', 'MN'=> 'Mongolia', 'MH'=> 'Marshall Islands', 'US'=> 'United States', 'UM'=> 'United States Minor Outlying Islands', 'MT'=> 'Malta', 'MW'=> 'Malawi', 'MV'=> 'Maldives', 'MQ'=> 'Martinique', 'MP'=> 'Northern Mariana Islands', 'MS'=> 'Montserrat', 'NA'=> 'Namibia', 'IM'=> 'Isle Of Man', 'UG'=> 'Uganda', 'MY'=> 'Malaysia', 'MX'=> 'Mexico', 'IL'=> 'Israel', 'BG'=> 'Bulgaria', 'FR'=> 'France', 'AW'=> 'Aruba', 'AX'=> '\xc3\x85land', 'FI'=> 'Finland', 'FJ'=> 'Fiji', 'FK'=> 'Falkland Islands', 'FM'=> 'Micronesia', 'FO'=> 'Faroe Islands', 'NI'=> 'Nicaragua', 'NL'=> 'Netherlands', 'NO'=> 'Norway', 'SO'=> 'Somalia', 'NC'=> 'New Caledonia', 'NE'=> 'Niger', 'NF'=> 'Norfolk Island', 'NG'=> 'Nigeria', 'NZ'=> 'New Zealand', 'NP'=> 'Nepal', 'NR'=> 'Naur', 'NU'=> 'Niue', 'MR'=> 'Mauritania', 'CK'=> 'Cook Islands', 'CI'=> "C\xc3\xb4te D'ivoire", 'CH'=> 'Switzerland', 'CO'=> 'Colombia', 'CN'=> 'China', 'CM'=> 'Cameroon', 'CL'=> 'Chile', 'CC'=> 'Cocos (keeling) Islands', 'CA'=> 'Canada', 'CG'=> 'Congo (brazzaville)', 'CF'=> 'Central African Republic', 'CD'=> 'Congo (kinshasa)', 'CZ'=> 'Czech Republic', 'CY'=> 'Cyprus', 'CX'=> 'Christmas Island', 'CS'=> 'Serbia', 'CR'=> 'Costa Rica', 'HU'=> 'Hungary', 'CV'=> 'Cape Verde', 'CU'=> 'Cuba', 'SZ'=> 'Swaziland', 'SY'=> 'Syria', 'KG'=> 'Kyrgyzstan', 'KE'=> 'Kenya', 'SR'=> 'Suriname', 'KI'=> 'Kiribati', 'KH'=> 'Cambodia', 'KN'=> 'Saint Kitts And Nevis', 'KM'=> 'Comoros', 'ST'=> 'Sao Tome And Principe', 'SK'=> 'Slovakia', 'KR'=> 'South Korea', 'SI'=> 'Slovenia', 'SH'=> 'Saint Helena', 'KW'=> 'Kuwait', 'SN'=> 'Senegal', 'SM'=> 'San Marino', 'SL'=> 'Sierra Leone', 'SC'=> 'Seychelles', 'SB'=> 'Solomon Islands', 'KY'=> 'Cayman Islands', 'SG'=> 'Singapore', 'SE'=> 'Sweden', 'SD'=> 'Sudan', 'DO'=> 'Dominican Republic', 'DM'=> 'Dominica', 'DJ'=> 'Djibouti', 'DK'=> 'Denmark', 'DE'=> 'Germany', 'YE'=> 'Yemen', 'AT'=> 'Austria', 'DZ'=> 'Algeria', 'MK'=> 'Macedonia', 'UY'=> 'Uruguay', 'YT'=> 'Mayotte', 'MU'=> 'Mauritius', 'TZ'=> 'Tanzania', 'LC'=> 'Saint Lucia', 'LA'=> 'Laos', 'TV'=> 'Tuval', 'TW'=> 'Taiwan', 'TT'=> 'Trinidad And Tobago', 'TR'=> 'Turkey', 'LK'=> 'Sri Lanka', 'LI'=> 'Liechtenstein', 'LV'=> 'Latvia', 'TO'=> 'Tonga', 'TL'=> 'Timor-leste', 'LU'=> 'Luxembourg', 'LR'=> 'Liberia', 'TK'=> 'Tokela', 'TH'=> 'Thailand', 'TF'=> 'French Southern Lands', 'TG'=> 'Togo', 'TD'=> 'Chad', 'TC'=> 'Turks And Caicos Islands', 'LY'=> 'Libya', 'VA'=> 'Vatican City', 'AC'=> 'Ascension Island', 'VC'=> 'Saint Vincent And The Grenadines', 'AE'=> 'United Arab Emirates', 'VE'=> 'Venezuela', 'AG'=> 'Antigua And Barbuda', 'AF'=> 'Afghanistan', 'IQ'=> 'Iraq', 'VI'=> 'Virgin Islands, U.s.', 'IS'=> 'Iceland', 'IR'=> 'Iran', 'AM'=> 'Armenia', 'AL'=> 'Albania', 'VN'=> 'Vietnam', 'AN'=> 'Netherlands Antilles', 'AQ'=> 'Antarctica', 'AS'=> 'American Samoa', 'AR'=> 'Argentina', 'AU'=> 'Australia', 'VU'=> 'Vanuat', 'IO'=> 'British Indian Ocean Territory', 'IN'=> 'India', 'LB'=> 'Lebanon', 'AZ'=> 'Azerbaijan', 'IE'=> 'Ireland', 'ID'=> 'Indonesia', 'PA'=> 'Panama', 'UA'=> 'Ukraine', 'QA'=> 'Qatar', 'MZ'=> 'Mozambique'
 );
 
-define("PIPLAPI_TIMESTAMP_FORMAT", "Y-m-d\TH:i:s");
+define("PIPLAPI_TIMESTAMP_FORMAT", "Y-m-d");
 define("PIPLAPI_DATE_FORMAT", 'Y-m-d');
 define("PIPLAPI_VERSION", "1.0");
 define("PIPLAPI_USERAGENT", 'piplapis/php/1.0');
 
 class PiplApi_Serializable
 {
-    public static function from_json($cls, $json_str)
+    public static function from_json($json_str)
     {
         // Deserialize the object from a JSON string.
         $jsoned = json_decode($json_str, true);
 
         // We don't have PHP 5.3, so this is the best option right now
         // to call a static function from a class name
-        $from_dict_func = method_exists($cls, 'from_dict') ? array($cls, 'from_dict') : array('PiplApi_Field', 'from_dict');
-        return call_user_func($from_dict_func, $cls, $jsoned);
+        return self::from_array($jsoned);
+//        $from_array_func = method_exists($cls, 'from_array') ? array($cls, 'from_array') : array('PiplApi_Field', 'from_array');
+//        return call_user_vfunc($from_array_func, $cls, $jsoned);
     }
     
     public static function to_json($obj)
     {
-        $d = $obj->to_dict();
+        $d = $obj->to_array();
         return json_encode($d);
     }
 }
@@ -123,8 +124,7 @@ function piplapi_date_parse_from_format($format, $date)
 function validate_datetime($parsed)
 {
     extract($parsed);
-    if (!(checkdate($month, $day, $year) && $hour >= 0 && $hour <= 23 &&
-          $minute >= 0 && $minute <= 59 && $second >= 0 && $second <= 59))
+    if (!(checkdate($month, $day, $year)))
     {
         throw new InvalidArgumentException('Invalid date/time!');
     }
@@ -136,13 +136,11 @@ function piplapi_str_to_datetime($s)
     // Transform a string to a DateTime object.
     $parsed = piplapi_date_parse_from_format(PIPLAPI_TIMESTAMP_FORMAT, $s);
     validate_datetime($parsed);
-    return new DateTime(sprintf('%04d-%02d-%02d %02d:%02d:%02d',
+    return new DateTime(sprintf('%04d-%02d-%02d',
                                             $parsed['year'],
                                             $parsed['month'],
-                                            $parsed['day'],
-                                            $parsed['hour'],
-                                            $parsed['minute'],
-                                            $parsed['second']), new DateTimeZone('GMT'));
+                                            $parsed['day']
+                                          ), new DateTimeZone('GMT'));
 }
 
 function piplapi_datetime_to_str($dt)

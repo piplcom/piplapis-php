@@ -29,13 +29,13 @@ class PiplApi_APIError extends Exception
         return !$this->is_user_error();
     }
     
-    public static function from_dict($cls, $d)
+    public static function from_array($d)
     {
         // Transform the dict to a error object and return the error.
-        return new $cls($d['error'], $d['@http_status_code']);
+        return new self($d['error'], $d['@http_status_code']);
     }
 
-    public function to_dict()
+    public function to_array()
     {
         // Return a dict representation of the error.
         return array('error' => $this->error, '@http_status_code' => $this->http_status_code);
