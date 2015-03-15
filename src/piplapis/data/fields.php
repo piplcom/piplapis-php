@@ -14,6 +14,9 @@ abstract class PiplApi_Field
 
     function __construct($params=array())
     {
+        // `valid_since` is a DateTime object, it's the first time Pipl's
+        // crawlers found this data on the page.
+        // `inferred` is a boolean indicating whether this field includes inferred data.
         extract($params);
         if (!empty($valid_since))
         {
@@ -171,6 +174,10 @@ abstract class PiplApi_Field
         
         return $d;
     }
+
+    public function is_searchable(){
+        return true;
+    }
 }
     
 class PiplApi_Name extends PiplApi_Field
@@ -195,10 +202,6 @@ class PiplApi_Name extends PiplApi_Field
         // an unparsed name.
         // 
         // `type` is one of PiplApi_Name::$types_set.
-        // 
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
-        // `inferred` is a boolean indicating whether this field includes inferred data.
 
         if (!empty($prefix))
         {
@@ -274,8 +277,6 @@ class PiplApi_Address extends PiplApi_Field
         // 
         // `type` is one of PiplApi_Address::$types_set.
         // 
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.     
 
         if (!empty($country))
         {
@@ -397,8 +398,6 @@ class PiplApi_Phone extends PiplApi_Field
 
         // `country_code`, `number` and `extension` should all be int/long.
         // `type` is one of PiplApi_Phone::$types_set.
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($country_code))
         {
@@ -462,8 +461,6 @@ class PiplApi_Email extends PiplApi_Field
 
         // `address`, `address_md5`, `type` should be strings.
         // `type` is one of PiplApl_Email::$types_set.
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($address))
         {
@@ -557,8 +554,6 @@ class PiplApi_Username extends PiplApi_Field
 
         // `content` is the username itself, it should be a string.
 
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($content))
         {
@@ -595,8 +590,6 @@ class PiplApi_UserID extends PiplApi_Field
 
         // `content` is the ID itself, it should be a string.
 
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($content))
         {
@@ -625,8 +618,6 @@ class PiplApi_DOB extends PiplApi_Field
         // `date_range` is A DateRange object (PiplApi_DateRange),
         // the date-of-birth is within this range.
 
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($date_range))
         {
@@ -760,9 +751,8 @@ class PiplApi_Image extends PiplApi_Field
         parent::__construct($params);
 
         // `url` should be a string.
+        // `thumbnail_token` is a string used to create the URL for Pipl's thumbnail service.
 
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($url))
         {
@@ -779,7 +769,15 @@ class PiplApi_Image extends PiplApi_Field
         // A bool value that indicates whether the image URL is a valid URL.
         return (!empty($this->url) && piplapi_is_valid_url($this->url));
     }
-
+    public function get_thumbnail_url($width=100, $height=100, $zoom_face=true, $favicon=true, $use_https=false){
+        if(!empty($this->thumbnail_token)){
+            $prefix = $use_https ? "https" : "http";
+            $params = array("width" => $width, "height" => $height, "zoom_face" => $zoom_face, "favicon" => $favicon);
+            $url = $prefix . "://thumb.pipl.com/image?token=" . $this->thumbnail_token . "&" . http_build_query($params);
+            return $url;
+        }
+        return NULL;
+    }
     public function __toString(){
         return $this->url;
     }
@@ -799,8 +797,6 @@ class PiplApi_Job extends PiplApi_Field
         // `title`, `organization`, `industry`, should all be strings.
         // `date_range` is A DateRange object (PiplApi_DateRange), 
         // that's the time the person held this job.
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page. 
 
         if (!empty($title))
         {
@@ -840,8 +836,6 @@ class PiplApi_Education extends PiplApi_Field
         // `degree` and `school` should both be strings.
         // `date_range` is A DateRange object (PiplApi_DateRange), 
         // that's the time the person was studying.
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($degree))
         {
@@ -874,8 +868,6 @@ class PiplApi_Gender extends PiplApi_Field
         parent::__construct($params);
 
         // `content` is the gender value - "Male"/"Female"
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($content))
         {
@@ -887,6 +879,7 @@ class PiplApi_Gender extends PiplApi_Field
     {
         return $this->content ? ucwords($this->content) : "";
     }
+
 }
 
 class PiplApi_Ethnicity extends PiplApi_Field
@@ -906,8 +899,6 @@ class PiplApi_Ethnicity extends PiplApi_Field
         parent::__construct($params);
 
         // `content` is the ethnicity value.
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($content))
         {
@@ -935,8 +926,6 @@ class PiplApi_Language extends PiplApi_Field
         // `region` is the language region. For example "US"
         // `display` is a display value. For example "en_US"
 
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($language))
         {
@@ -964,8 +953,6 @@ class PiplApi_OriginCountry extends PiplApi_Field
         parent::__construct($params);
 
         // `country` is a two letter country code.
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($country))
         {
@@ -1005,8 +992,6 @@ class PiplApi_URL extends PiplApi_Field
         //    `url`, `category`, `domain` and `name` should all be strings.
         //
         //    `sponsored` is a boolean - whether the URL is sponsored or not
-        //    `valid_since` is a DateTime object, it's the first time Pipl's
-        //    crawlers found this data on the page.
 
         if (!empty($url))
         {
@@ -1064,8 +1049,6 @@ class PiplApi_Tag extends PiplApi_Field
         // `content` is the tag itself, both `content` and `classification` 
         // should be strings.
 
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
 
         if (!empty($content))
         {
@@ -1198,54 +1181,3 @@ class PiplApi_DateRange
 }
 
 
-class PiplApi_Relationship extends PiplApi_Field
-{
-    // Name of another person related to this person.
-
-    protected $attributes = array('type', 'subtype');
-    protected $children = array('name');
-    protected $types_set = array('friend', 'family', 'work', 'other');
-
-    function __construct($params=array())
-    {
-        extract($params);
-        parent::__construct($params);
-
-        // `name` is a Name object (PiplApi_Name).
-        //
-        // `type` and `subtype` should both be strings.
-        //
-        // `type` is one of PiplApi_RelatedURL::$types_set.
-        //
-        // `subtype` is not restricted to a specific list of possible values (for
-        // example, if type is "family" then subtype can be "Father", "Mother",
-        // "Son" and many other things).
-        //
-        // `valid_since` is a DateTime object, it's the first time Pipl's
-        // crawlers found this data on the page.
-
-        if (!empty($name))
-        {
-            $this->name = $name;
-        }
-        if (!empty($type))
-        {
-            $this->type = $type;
-        }
-        if (!empty($subtype))
-        {
-            $this->subtype = $subtype;
-        }
-    }
-
-    public static function from_array($clsname, $d)
-    {
-        // Extend Field.from_array and also load the name from the dict.
-        $relationship = PiplApi_Field::from_array('PiplApi_Relationship', $d);
-        if (!empty($relationship->name))
-        {
-            $relationship->name = PiplApi_Field::from_array('PiplApi_Name', $relationship->name);
-        }
-        return $relationship;
-    }
-}
