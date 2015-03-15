@@ -612,7 +612,7 @@ class PiplApi_UserID extends PiplApi_Field
 class PiplApi_DOB extends PiplApi_Field
 {
     // Date-of-birth of A person.
-    // Comes as a date-range (the exact date is within the range, if the exact
+    // Comes as a PiplApi_DateRange (the exact date is within the range, if the exact
     // date is known the range will simply be with start=end).
 
     protected $children = array('date_range', 'display');
@@ -670,9 +670,11 @@ class PiplApi_DOB extends PiplApi_Field
     public function age_range()
     {
         // An array of two ints - the minimum and maximum age of the person.
-        if (empty($this->date_range))
-        {
+        if (empty($this->date_range)){
             return array(NULL, NULL);
+        }
+        if(empty($this->date_range->start) || empty($this->date_range->end)){
+            return array($this->age(), $this->age());
         }
 
         $start_date = new PiplApi_DateRange($this->date_range->start, $this->date_range->start);
@@ -1091,7 +1093,7 @@ class PiplApi_DateRange
     
     function __construct($start, $end)
     {
-        // `start` and `end` are datetime.date objects, both are required.
+        // `start` and `end` are DateTime objects, at least one is required.
         
         // For creating a DateRange object for an exact date (like if exact 
         // date-of-birth is known) just pass the same value for `start` and `end`.
@@ -1105,7 +1107,7 @@ class PiplApi_DateRange
             $this->end = $end;
         }
         
-         if (empty($this->start) || empty($this->end))
+         if (empty($this->start) && empty($this->end))
         {
             throw new InvalidArgumentException('Start/End parameters missing');
         }
@@ -1121,7 +1123,12 @@ class PiplApi_DateRange
     public function __toString()
     {
         // Return a representation of the object.
-        return (sprintf('DateRange(%s, %s)', piplapi_date_to_str($this->start), piplapi_date_to_str($this->end)));
+        if($this->start && $this->end) {
+            return sprintf('%s - %s', piplapi_date_to_str($this->start), piplapi_date_to_str($this->end));
+        } elseif($this->start) {
+            return piplapi_date_to_str($this->start);
+        }
+        return piplapi_date_to_str($this->end);
     }
 
     public function is_exact()
@@ -1134,16 +1141,22 @@ class PiplApi_DateRange
     public function middle()
     {
         // The middle of the date range (a DateTime object).
-        $diff = ($this->end->format('U') - $this->start->format('U')) / 2;
-        $newts = $this->start->format('U') + $diff;
-        $newdate = new DateTime('@' . $newts, new DateTimeZone('GMT'));
-        return $newdate;
+        if($this->start && $this->end) {
+            $diff = ($this->end->format('U') - $this->start->format('U')) / 2;
+            $newts = $this->start->format('U') + $diff;
+            $newdate = new DateTime('@' . $newts, new DateTimeZone('GMT'));
+            return $newdate;
+        }
+        return $this->start ? $this->start : $this->end;
     }
 
     public function years_range()
     {
         // A tuple of two ints - the year of the start date and the year of the 
         // end date.
+        if(!($this->start && $this->end)){
+            return NULL;
+        }
         return array($this->start->format('Y'), $this->end->format('Y'));
     }
     
@@ -1158,16 +1171,15 @@ class PiplApi_DateRange
     public static function from_array($d)
     {
         // Transform the dict to a DateRange object.
-        $newstart = $d['start'];
-        $newend = $d['end'];
-        
-        if (empty($newstart) || empty($newend))
-        {
-            throw new InvalidArgumentException('DateRange must have both start and end');
+        $newstart = !empty($d['start']) ? $d['start'] : NULL;
+        $newend = !empty($d['end']) ? $d['end'] : NULL;
+
+        if($newstart) {
+            $newstart = piplapi_str_to_date($newstart);
         }
-        
-        $newstart = piplapi_str_to_date($newstart);
-        $newend = piplapi_str_to_date($newend);
+        if($newend){
+            $newend = piplapi_str_to_date($newend);
+        }
         return new PiplApi_DateRange($newstart, $newend);
     }
 
@@ -1175,8 +1187,12 @@ class PiplApi_DateRange
     {
         // Transform the date-range to a dict.
         $d = array();
-        $d['start'] = piplapi_date_to_str($this->start);
-        $d['end'] = piplapi_date_to_str($this->end);
+        if($this->start) {
+            $d['start'] = piplapi_date_to_str($this->start);
+        }
+        if($this->end){
+            $d['end'] = piplapi_date_to_str($this->end);
+        }
         return $d;
     }
 }
