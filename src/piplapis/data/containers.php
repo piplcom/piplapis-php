@@ -175,6 +175,7 @@ class PiplApi_Source extends PiplApi_FieldsContainer
     public $person_id;
     public $id;
     public $premium;
+    public $match;
     public $valid_since;
     public $relationships = array();
     public $tags = array();
@@ -211,10 +212,11 @@ class PiplApi_Source extends PiplApi_FieldsContainer
         $this->person_id = $person_id;
         $this->id = $id;
         $this->premium = $premium;
+        $this->match = $match;
         $this->valid_since = $valid_since;
     }
     
-    public static function from_array($d)
+    public static function from_array($params)
     {
         // Transform the dict to a record object and return the record.
         $name = !empty($params['@name']) ? $params['@name'] : NULL;
@@ -226,12 +228,12 @@ class PiplApi_Source extends PiplApi_FieldsContainer
         $person_id = !empty($params['@person_id']) ? $params['@person_id'] : NULL;
         $source_id = !empty($params['@id']) ? $params['@id'] : NULL;
         $premium = !empty($params['@premium']) ? $params['@premium'] : NULL;
-        $valid_since = !empty($d['@valid_since']) ? $d['@valid_since'] : NULL;
+        $valid_since = !empty($params['@valid_since']) ? $params['@valid_since'] : NULL;
         if (!empty($valid_since)){ $valid_since = piplapi_str_to_datetime($valid_since); }
 
         $instance = new self(array(), $match, $name, $category, $origin_url, $sponsored, $domain, $person_id,
                         $source_id, $premium, $valid_since);
-        $instance->add_fields($instance->fields_from_array($d));
+        $instance->add_fields($instance->fields_from_array($params));
         return $instance;
     }
 
@@ -316,7 +318,7 @@ class PiplApi_Person extends PiplApi_FieldsContainer
     
     public function unsearchable_fields()
     {
-        // An array of all the fields that can't be searched by.
+        // An array of all the fields that are invalid and won't be used in the search.
         
         // For example: names/usernames that are too short, emails that are 
         // invalid etc.
@@ -325,15 +327,15 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         return $unsearchable;
     }
 
-    public static function from_array($d)
+    public static function from_array($params)
     {
         // Transform the array to a person object and return it.
         $id = !empty($params['@id']) ? $params['@id'] : NULL;
         $search_pointer = !empty($params['@search_pointer']) ? $params['@search_pointer'] : NULL;
-        $match = !empty($d['@match']) ? $d['@match'] : NULL;
+        $match = !empty($params['@match']) ? $params['@match'] : NULL;
 
         $instance = new self(array(), $id, $search_pointer, $match);
-        $instance->add_fields($instance->fields_from_array($d));
+        $instance->add_fields($instance->fields_from_array($params));
         return $instance;
     }
 
@@ -348,5 +350,69 @@ class PiplApi_Person extends PiplApi_FieldsContainer
 
         return array_merge($d, $this->fields_to_array());
     }
+
+}
+
+class PiplApi_Relationship extends PiplApi_FieldsContainer
+{
+    // Name of another person related to this person.
+
+    protected $types_set = array('friend', 'family', 'work', 'other');
+
+    public $type;
+    public $subtype;
+    public $valid_since;
+    public $inferred;
+
+    function __construct($fields = array(), $type = NULL, $subtype = NULL, $valid_since = NULL, $inferred = NULL)
+    {
+        parent::__construct($fields);
+
+        // `fields` is an array of data fields (see fields.php)
+        //
+        // `type` and `subtype` should both be strings.
+        // `type` is one of PiplApi_Relationship::$types_set.
+        //
+        // `subtype` is not restricted to a specific list of possible values (for
+        // example, if type is "family" then subtype can be "Father", "Mother",
+        // "Son" and many other things).
+        //
+        // `valid_since` is a DateTime object, it's the first time Pipl's
+        // crawlers found this data on the page.
+        // `inferred` is a boolean, indicating whether this field includes inferred data.
+        $this->type = $type;
+        $this->subtype = $subtype;
+        $this->valid_since = $valid_since;
+        $this->inferred = $inferred;
+    }
+
+    public static function from_array($class_name, $params)
+    {
+        // Transform the array to a person object and return it.
+        $type = !empty($params['@type']) ? $params['@type'] : NULL;
+        $subtype = !empty($params['@subtype']) ? $params['@subtype'] : NULL;
+        $valid_since = !empty($params['@valid_since']) ? $params['@valid_since'] : NULL;
+        $inferred = !empty($params['@inferred']) ? $params['@inferred'] : NULL;
+
+        $instance = new self(array(), $type, $subtype, $valid_since, $inferred);
+        $instance->add_fields($instance->fields_from_array($params));
+        return $instance;
+    }
+    public function __toString(){
+        return count($this->names) > 0 && $this->names[0]->first ? $this->names[0]->first : "";
+    }
+    public function to_array()
+    {
+        // Return an array representation of the person.
+        $d = array();
+
+        if (!empty($this->valid_since)){ $d['@valid_since'] = $this->valid_since; }
+        if (!empty($this->inferred)){ $d['@inferred'] = $this->inferred; }
+        if (!empty($this->type)){ $d['@type'] = $this->type; }
+        if (!empty($this->subtype)){ $d['@subtype'] = $this->subtype; }
+
+        return array_merge($d, $this->fields_to_array());
+    }
+
 
 }
