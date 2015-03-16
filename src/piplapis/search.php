@@ -74,7 +74,7 @@ class PiplApi_SearchAPIRequest
     public $person;
     public $configuration;
 
-    private $base_url = 'debug.pipl.com/apis/search/v4/?developer_class=premium&';
+    private $base_url = 'api.pipl.com/search/v4/?';
 
     static function set_default_configuration($configuration){
         self::$default_configuration = $configuration;
