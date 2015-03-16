@@ -41,4 +41,3 @@ class PiplApi_APIError extends Exception
         return array('error' => $this->error, '@http_status_code' => $this->http_status_code);
     }
 }
-?>

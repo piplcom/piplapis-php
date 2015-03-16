@@ -171,4 +171,3 @@ function piplapi_string_startswith($str1, $str2)
     // returns true if str1 begins with str2.
     return (0 == strncmp($str1, $str2, strlen($str2)));
 }
-?>

@@ -366,6 +366,7 @@ class PiplApi_Address extends PiplApi_Field
                       $GLOBALS['piplapi_countries'][$uppedcoutnry] :
                       NULL;
         }
+        return;
     }
     
     public function state_full()
@@ -380,6 +381,7 @@ class PiplApi_Address extends PiplApi_Field
         {
             return $GLOBALS['piplapi_states'][strtoupper($this->country)][strtoupper($this->state)];
         }
+        return;
     }
 }
 
@@ -656,6 +658,7 @@ class PiplApi_DOB extends PiplApi_Field
 
             return $diff;
         }
+        return;
     }
 
     public function age_range()
