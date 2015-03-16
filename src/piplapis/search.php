@@ -278,7 +278,7 @@ class PiplApi_SearchAPIRequest
         if($this->person->search_pointer) {
             $query['search_pointer'] = $this->person->search_pointer;
         } elseif($this->person) {
-            $query['person'] = PiplApi_Serializable::to_json($this->person);
+            $query['person'] = $this->person->to_array();
         }
         if($this->get_effective_configuration()->show_sources) {
             $query['show_sources'] = $this->get_effective_configuration()->show_sources;

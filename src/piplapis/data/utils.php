@@ -13,29 +13,8 @@ $piplapi_countries = array(
 
 define("PIPLAPI_TIMESTAMP_FORMAT", "Y-m-d");
 define("PIPLAPI_DATE_FORMAT", 'Y-m-d');
-define("PIPLAPI_VERSION", "1.0");
-define("PIPLAPI_USERAGENT", 'piplapis/php/1.0');
-
-class PiplApi_Serializable
-{
-    public static function from_json($json_str)
-    {
-        // Deserialize the object from a JSON string.
-        $jsoned = json_decode($json_str, true);
-
-        // We don't have PHP 5.3, so this is the best option right now
-        // to call a static function from a class name
-        return self::from_array($jsoned);
-//        $from_array_func = method_exists($cls, 'from_array') ? array($cls, 'from_array') : array('PiplApi_Field', 'from_array');
-//        return call_user_vfunc($from_array_func, $cls, $jsoned);
-    }
-    
-    public static function to_json($obj)
-    {
-        $d = $obj->to_array();
-        return json_encode($d);
-    }
-}
+define("PIPLAPI_VERSION", "4.0.0");
+define("PIPLAPI_USERAGENT", 'piplapis/php/4.0.0');
 
 // Since strptime is not implemented on PHP for windows we have to use something else...
 // This implementation is from: http://www.brewsterware.com/strptime-for-windows.html
