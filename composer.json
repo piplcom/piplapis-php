@@ -1,5 +1,4 @@
 {
-  "version": "4.0.0",
   "name": "pipl/piplapis-php",
   "description": "Client library for use with the Pipl search API",
   "license": "APACHE2",
