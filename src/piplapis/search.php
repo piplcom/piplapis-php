@@ -130,9 +130,10 @@ class PiplApi_SearchAPIRequest
         $person = !empty($search_params['person']) ? $search_params['person'] : new PiplApi_Person();
 
         if (!empty($search_params['first_name']) || !empty($search_params['middle_name']) || !empty($search_params['last_name'])){
-            $name = new PiplApi_Name(array('first' => $search_params['first_name'],
-                                                           'middle' => $search_params['middle_name'],
-                                                           'last' => $search_params['last_name']));
+            $first = !empty($search_params['first_name']) ? $search_params['first_name'] : NULL;
+            $last = !empty($search_params['last_name']) ? $search_params['last_name'] : NULL;
+            $middle = !empty($search_params['middle_name']) ? $search_params['middle_name'] : NULL;
+            $name = new PiplApi_Name(array('first' => $first, 'middle' => $middle, 'last' => $last));
             $person->add_fields(array($name));
         }
 
@@ -153,8 +154,10 @@ class PiplApi_SearchAPIRequest
         }
 
         if (!empty($search_params['country']) || !empty($search_params['state']) || !empty($search_params['city'])){
-            $address = new PiplApi_Address(array('country' => $search_params['country'], 'state' => $search_params['state'],
-                                                 'city' => $search_params['city']));
+            $country = !empty($search_params['country']) ? $search_params['country'] : NULL;
+            $state = !empty($search_params['state']) ? $search_params['state'] : NULL;
+            $city = !empty($search_params['city']) ? $search_params['city'] : NULL;
+            $address = new PiplApi_Address(array('country' => $country, 'state' => $state, 'city' => $city));
             $person->add_fields(array($address));
         }
 
