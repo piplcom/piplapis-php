@@ -12,5 +12,9 @@
       "name": "Josh Liberty",
       "email": "josh.liberty@pipl.com"
     }
-  ]
+  ],
+  "autoload": {
+      "files": ["src/piplapis/data/utils.php"],
+      "classmap": ["src/piplapis/", "src/piplapis/data/"]
+  }
 }
