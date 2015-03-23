@@ -29,7 +29,7 @@ class PiplApi_SearchRequestConfiguration
     function __construct($api_key = "sample_key", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
                          $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false){
         $this->api_key = $api_key;
-        $this->minimum_probability = $show_sources;
+        $this->minimum_probability = $minimum_probability;
         $this->minimum_match = $minimum_match;
         $this->show_sources = $show_sources;
         $this->live_feeds = $live_feeds;
