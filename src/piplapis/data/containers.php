@@ -313,7 +313,7 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         // can be sent as a query to the API.
         $all = array_merge( $this->names, $this->emails, $this->phones, $this->usernames);
         $searchable = array_filter($all, create_function('$field', 'return $field->is_searchable();'));
-        return count($searchable) > 0;
+        return $this->search_pointer or count($searchable) > 0;
     }
     
     public function unsearchable_fields()

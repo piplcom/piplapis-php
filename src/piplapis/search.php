@@ -171,8 +171,8 @@ class PiplApi_SearchAPIRequest
             $person->add_fields(array($dob));
         }
 
-        if (!empty($search_params['api_key'])){
-            $this->api_key = $search_params['api_key'];
+        if (!empty($search_params['search_pointer'])){
+            $person->search_pointer = $search_params['search_pointer'];
         }
 
         $this->person = $person;
