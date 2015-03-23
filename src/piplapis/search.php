@@ -118,6 +118,7 @@ class PiplApi_SearchAPIRequest
         //           The person can contain every field allowed by the data-model
         //           (fields.php) and can hold multiple fields of
         //           the same type (for example: two emails, three addresses etc.)
+        // search_pointer -- a pointer from a possible person, received from an API response object.
         //
         // Each of the arguments that should have a string that accepts both
         // strings.
