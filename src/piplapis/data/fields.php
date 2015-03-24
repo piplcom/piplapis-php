@@ -100,14 +100,14 @@ abstract class PiplApi_Field
         
         foreach ($d as $key => $val)
         {
-            if (piplapi_string_startswith($key, '@'))
+            if (PiplAPI_Utils::piplapi_string_startswith($key, '@'))
             {
                 $key = substr($key, 1);
             }
             
             if ($key == 'valid_since')
             {
-                $val = piplapi_str_to_datetime($val);
+                $val = PiplAPI_Utils::piplapi_str_to_datetime($val);
             }
             
             if ($key == 'date_range')
@@ -138,7 +138,7 @@ abstract class PiplApi_Field
         $d = array();
         if (!empty($this->valid_since))
         {
-            $d['@valid_since'] = piplapi_datetime_to_str($this->valid_since);
+            $d['@valid_since'] = PiplAPI_Utils::piplapi_datetime_to_str($this->valid_since);
             
         }
 
@@ -241,9 +241,9 @@ class PiplApi_Name extends PiplApi_Field
     {
         // A bool value that indicates whether the name is a valid name to 
         // search by.
-        $first = piplapi_alpha_chars(!empty($this->first) ? $this->first : '');
-        $last = piplapi_alpha_chars(!empty($this->last) ? $this->last : '');
-        $raw = piplapi_alpha_chars(!empty($this->raw) ? $this->raw : '');
+        $first = PiplAPI_Utils::piplapi_alpha_chars(!empty($this->first) ? $this->first : '');
+        $last = PiplAPI_Utils::piplapi_alpha_chars(!empty($this->last) ? $this->last : '');
+        $raw = PiplAPI_Utils::piplapi_alpha_chars(!empty($this->raw) ? $this->raw : '');
         
         return (strlen($first) >= 2 && strlen($last) >= 2) || strlen($raw) >= 4;
     }
@@ -337,7 +337,7 @@ class PiplApi_Address extends PiplApi_Field
         // A bool value that indicates whether the object's country is a valid 
         // country code.
         return (!empty($this->country) &&
-                   array_key_exists(strtoupper($this->country), $GLOBALS['piplapi_countries']));
+                   array_key_exists(strtoupper($this->country), PiplAPI_Utils::$piplapi_countries));
     }
     
     public function is_valid_state()
@@ -345,9 +345,9 @@ class PiplApi_Address extends PiplApi_Field
         // A bool value that indicates whether the object's state is a valid 
         // state code.
         return ($this->is_valid_country() &&
-                   array_key_exists(strtoupper($this->country), $GLOBALS['piplapi_states']) &&
+                   array_key_exists(strtoupper($this->country), PiplAPI_Utils::$piplapi_states) &&
                    !empty($this->state) &&
-                   array_key_exists(strtoupper($this->state), $GLOBALS['piplapi_states'][strtoupper($this->country)]));
+                   array_key_exists(strtoupper($this->state), PiplAPI_Utils::$piplapi_states[strtoupper($this->country)]));
 
     }
     
@@ -362,9 +362,9 @@ class PiplApi_Address extends PiplApi_Field
         {
             $uppedcoutnry = strtoupper($this->country);
             
-            return array_key_exists($uppedcoutnry, $GLOBALS['piplapi_countries']) ?
-                      $GLOBALS['piplapi_countries'][$uppedcoutnry] :
-                      NULL;
+            return array_key_exists($uppedcoutnry, PiplAPI_Utils::$piplapi_countries) ?
+                    PiplAPI_Utils::$piplapi_countries[$uppedcoutnry] :
+                    NULL;
         }
         return;
     }
@@ -379,7 +379,7 @@ class PiplApi_Address extends PiplApi_Field
     
         if ($this->is_valid_state())
         {
-            return $GLOBALS['piplapi_states'][strtoupper($this->country)][strtoupper($this->state)];
+            return PiplAPI_Utils::$piplapi_states[strtoupper($this->country)][strtoupper($this->state)];
         }
         return;
     }
@@ -568,7 +568,7 @@ class PiplApi_Username extends PiplApi_Field
         // A bool value that indicates whether the username is a valid username
         // to search by.
         $st = !empty($this->content) ? $this->content : '';
-        return (strlen(piplapi_alnum_chars($st)) >= 4);
+        return (strlen(PiplAPI_Utils::piplapi_alnum_chars($st)) >= 4);
     }
 
     public function __toString(){
@@ -770,7 +770,7 @@ class PiplApi_Image extends PiplApi_Field
     public function is_valid_url()
     {
         // A bool value that indicates whether the image URL is a valid URL.
-        return (!empty($this->url) && piplapi_is_valid_url($this->url));
+        return (!empty($this->url) && PiplAPI_Utils::piplapi_is_valid_url($this->url));
     }
     public function get_thumbnail_url($width=100, $height=100, $zoom_face=true, $favicon=true, $use_https=false){
         if(!empty($this->thumbnail_token)){
@@ -967,8 +967,8 @@ class PiplApi_OriginCountry extends PiplApi_Field
         if (!empty($this->country))
         {
             $uppedcoutnry = strtoupper($this->country);
-            return array_key_exists($uppedcoutnry, $GLOBALS['piplapi_countries']) ?
-                $GLOBALS['piplapi_countries'][$uppedcoutnry] : NULL;
+            return array_key_exists($uppedcoutnry, PiplAPI_Utils::$piplapi_countries) ?
+                PiplAPI_Utils::$piplapi_countries[$uppedcoutnry] : NULL;
         }
         return "";
     }
@@ -1025,7 +1025,7 @@ class PiplApi_URL extends PiplApi_Field
     public function is_valid_url()
     {
         // A bool value that indicates whether the URL is a valid URL.
-        return (!empty($this->url) && piplapi_is_valid_url($this->url));
+        return (!empty($this->url) && PiplAPI_Utils::piplapi_is_valid_url($this->url));
     }
 
     public function __toString(){
@@ -1110,11 +1110,12 @@ class PiplApi_DateRange
     {
         // Return a representation of the object.
         if($this->start && $this->end) {
-            return sprintf('%s - %s', piplapi_date_to_str($this->start), piplapi_date_to_str($this->end));
+            return sprintf('%s - %s', PiplAPI_Utils::piplapi_date_to_str($this->start),
+                PiplAPI_Utils::piplapi_date_to_str($this->end));
         } elseif($this->start) {
-            return piplapi_date_to_str($this->start);
+            return PiplAPI_Utils::piplapi_date_to_str($this->start);
         }
-        return piplapi_date_to_str($this->end);
+        return PiplAPI_Utils::piplapi_date_to_str($this->end);
     }
 
     public function is_exact()
@@ -1161,10 +1162,10 @@ class PiplApi_DateRange
         $newend = !empty($d['end']) ? $d['end'] : NULL;
 
         if($newstart) {
-            $newstart = piplapi_str_to_date($newstart);
+            $newstart = PiplAPI_Utils::piplapi_str_to_date($newstart);
         }
         if($newend){
-            $newend = piplapi_str_to_date($newend);
+            $newend = PiplAPI_Utils::piplapi_str_to_date($newend);
         }
         return new PiplApi_DateRange($newstart, $newend);
     }
@@ -1174,10 +1175,10 @@ class PiplApi_DateRange
         // Transform the date-range to a dict.
         $d = array();
         if($this->start) {
-            $d['start'] = piplapi_date_to_str($this->start);
+            $d['start'] = PiplAPI_Utils::piplapi_date_to_str($this->start);
         }
         if($this->end){
-            $d['end'] = piplapi_date_to_str($this->end);
+            $d['end'] = PiplAPI_Utils::piplapi_date_to_str($this->end);
         }
         return $d;
     }

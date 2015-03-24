@@ -229,7 +229,7 @@ class PiplApi_Source extends PiplApi_FieldsContainer
         $source_id = !empty($params['@id']) ? $params['@id'] : NULL;
         $premium = !empty($params['@premium']) ? $params['@premium'] : NULL;
         $valid_since = !empty($params['@valid_since']) ? $params['@valid_since'] : NULL;
-        if (!empty($valid_since)){ $valid_since = piplapi_str_to_datetime($valid_since); }
+        if (!empty($valid_since)){ $valid_since = PiplAPI_Utils::piplapi_str_to_datetime($valid_since); }
 
         $instance = new self(array(), $match, $name, $category, $origin_url, $sponsored, $domain, $person_id,
                         $source_id, $premium, $valid_since);
@@ -241,7 +241,7 @@ class PiplApi_Source extends PiplApi_FieldsContainer
     {
         // Return an array representation of the record.
         $d = array();
-        if (!empty($this->valid_since)){ $d['@valid_since'] = piplapi_datetime_to_str($this->valid_since); }
+        if (!empty($this->valid_since)){ $d['@valid_since'] = PiplAPI_Utils::piplapi_datetime_to_str($this->valid_since); }
         if (!empty($this->match)){ $d['@match'] = $this->match; }
         if (!empty($this->category)){ $d['@category'] = $this->category; }
         if (!empty($this->origin_url)){ $d['@origin_url'] = $this->origin_url; }
