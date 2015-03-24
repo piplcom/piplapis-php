@@ -214,7 +214,8 @@ class PiplApi_SearchAPIRequest
 
         if ($strict && $unsearchable = $this->person->unsearchable_fields())
         {
-            throw new InvalidArgumentException(sprintf('Some fields are unsearchable: %s', implode(', ', $unsearchable)));
+            $display_strings = array_map(create_function('$field', 'return $field->get_representation();'), $unsearchable);
+            throw new InvalidArgumentException(sprintf('Some fields are unsearchable: %s', implode(', ', $display_strings)));
         }
 
         if (!$this->person->is_searchable())

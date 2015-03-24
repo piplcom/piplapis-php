@@ -78,7 +78,71 @@ abstract class PiplApi_Field
     {
         return isset($this->display) ? $this->display : "";
     }
-    
+
+    public function get_representation(){
+        // Return a string representation of the object.
+        $allattrs = array_merge($this->attributes, $this->children);
+        array_push($allattrs, "valid_since");
+
+        $allattrsvalues = array_map(array($this, 'internal_mapcb_buildattrslist'), $allattrs);
+
+        // $allattrsvalues is now a multidimensional array
+        $args = array_reduce($allattrsvalues, array($this, 'internal_reducecb_buildattrslist'));
+        $args = substr_replace($args, "", -2);
+
+        return get_class($this) . '(' . $args . ')';
+    }
+
+    private function internal_mapcb_buildattrslist($attr)
+    {
+        if (isset($this->internal_params[$attr]))
+        {
+            return array($attr => $this->internal_params[$attr]);
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+
+    private function internal_reducecb_buildattrslist($res, $x)
+    {
+        if (is_array($x) && count($x) > 0)
+        {
+            $keys = array_keys($x);
+            if (isset($x[$keys[0]]))
+            {
+                $val = $x[$keys[0]];
+
+                if ($val instanceof DateTime)
+                {
+                    $val = PiplApi_Utils::piplapi_datetime_to_str($val);
+                }
+                else if (is_array($val))
+                {
+                    $val = '[' . implode(', ', $val) . ']';
+                }
+                else
+                {
+                    $val = (string)$val;
+                }
+
+                $newval = $keys[0] . '=' . $val . ', ';
+                // This is a bit messy, but gets around the weird fact that array_reduce
+                // can only accept an initial integer.
+                if (empty($res))
+                {
+                    $res = $newval;
+                }
+                else
+                {
+                    $res .= $newval;
+                }
+            }
+        }
+        return $res;
+    }
+
     public function validate_type($type)
     {
         // Take an string `type` and raise an InvalidArgumentException if it's not 
@@ -165,11 +229,6 @@ abstract class PiplApi_Field
                     $d[$prefix . $key] = $value;
                 }
             }
-        }
-
-        if (method_exists($this, 'display'))
-        {
-            $d['display'] = $this->display();
         }
         
         return $d;
