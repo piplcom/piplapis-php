@@ -257,7 +257,7 @@ class PiplApi_SearchAPIRequest
         $params = $this->get_query_params();
         $url = $this->get_base_url();
         curl_setopt_array($curl, array(CURLOPT_RETURNTRANSFER => 1, CURLOPT_URL => $url,
-                                       CURLOPT_USERAGENT => PiplAPI_Utils::PIPLAPI_USERAGENT, CURLOPT_POST => count($params),
+                                       CURLOPT_USERAGENT => PiplApi_Utils::PIPLAPI_USERAGENT, CURLOPT_POST => count($params),
 					                   CURLOPT_POSTFIELDS => $params));
 
         $resp = curl_exec($curl);

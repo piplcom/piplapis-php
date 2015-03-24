@@ -1,6 +1,6 @@
 <?php
 
-class PiplAPI_Utils {
+class PiplApi_Utils {
 
     const PIPLAPI_TIMESTAMP_FORMAT = "Y-m-d";
     const PIPLAPI_DATE_FORMAT = "Y-m-d";
