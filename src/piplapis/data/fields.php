@@ -949,7 +949,7 @@ class PiplApi_Ethnicity extends PiplApi_Field
 
 //  An ethnicity field.
 //  The content will be a string with one of the following values (based on US census definitions)
-//        'white', 'black', 'american_indian', 'alaska_nativeian_indian',
+//        'white', 'black', 'american_indian', 'alaska_native',
 //        'chinese', 'filipino', 'other_asian', 'japanese',
 //        'korean', 'viatnamese', 'native_hawaiian', 'guamanian',
 //        'chamorro', 'samoan', 'other_pacific_islander', 'other'.
