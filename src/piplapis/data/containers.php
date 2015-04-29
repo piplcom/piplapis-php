@@ -128,7 +128,7 @@ class PiplApi_FieldsContainer
         foreach (array_values($this->CLASS_CONTAINER) as $container){
             $fields = $this->{$container};
             if (!empty($fields)){
-                $all_fields = [];
+                $all_fields = array();
                 foreach($fields as $field) {
                     $all_fields[] = $field->to_array();
                 }

@@ -459,13 +459,13 @@ class PiplApi_SearchAPIResponse {
             $d['person'] = $this->person->to_array();
         }
         if (!empty($this->possible_persons)){
-            $d['possible_persons'] = [];
+            $d['possible_persons']  = array();
             foreach($this->possible_persons as $possible_person){
                 $d['possible_persons'][] = $possible_person->to_array();
             }
         }
         if (!empty($this->sources)){
-            $d['sources'] = [];
+            $d['sources']  = array();
             foreach($this->sources as $source){
                 $d['sources'][] = $source->to_array();
             }
@@ -488,13 +488,13 @@ class PiplApi_SearchAPIResponse {
             $person = PiplApi_Person::from_array($d['person']);
         }
 
-        $sources = [];
+        $sources  = array();
         if(array_key_exists("sources", $d) && count($d['sources']) > 0){
             foreach($d["sources"] as $source){
                 $sources[] = PiplApi_Source::from_array($source);
             }
         }
-        $possible_persons = [];
+        $possible_persons = array();
         if(array_key_exists("possible_persons", $d) && count($d['possible_persons']) > 0){
             foreach($d["possible_persons"] as $possible_person){
                 $possible_persons[] = PiplApi_Person::from_array($possible_person);
