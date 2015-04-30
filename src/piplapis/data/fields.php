@@ -793,7 +793,8 @@ class PiplApi_DOB extends PiplApi_Field
         $end_date = new DateTime('now', new DateTimeZone('GMT'));
 
         $start_date->modify('-' . $end_age . ' year');
-        $start_date->modify('-1 day');
+        $start_date->modify('-1 year');
+        $start_date->modify('+1 day');
         $end_date->modify('-' . $start_age . ' year');
 
         $date_range = new PiplApi_DateRange($start_date, $end_date);
