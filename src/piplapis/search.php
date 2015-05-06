@@ -49,7 +49,7 @@ class PiplApi_SearchAPIRequest
     //            parameters):
     //
     // require_once dirname(__FILE__) . '/search.php';
-    // $request = new PiplApi_SearchAPIRequest(array('api_key' => 'sample_key', 'email' => 'clark.kent@example.com'));
+    // $request = new PiplApi_SearchAPIRequest(array('email' => 'clark.kent@example.com'));
     // $response = $request->send();
     //
     // Option 2 - using the data-model (useful for more complex queries; for
@@ -64,8 +64,7 @@ class PiplApi_SearchAPIRequest
     //                     new PiplApi_Address(array('country' => 'US', 'state' => 'KS', 'city' => 'Metropolis')),
     //                     new PiplApi_Address(array('country' => 'US', 'state' => 'KS')),
     //                     new PiplApi_Job(array('title' => 'Field Reporter')));
-    // $request = new PiplApi_SearchAPIRequest(array('api_key' => 'sample_key',
-    //                                                                  'person' => new PiplApi_Person(array('fields' => $fields))));
+    // $request = new PiplApi_SearchAPIRequest(array('person' => new PiplApi_Person(array('fields' => $fields))));
     // $response = $request->send();
     //
     // Sending the request and getting the response is very simple and can be done calling $request->send().
