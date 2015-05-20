@@ -447,7 +447,7 @@ class PiplApi_Address extends PiplApi_Field
 class PiplApi_Phone extends PiplApi_Field
 {
     // A phone number of a person.
-    
+
     protected $attributes = array('type');
     protected $children = array('country_code', 'number', 'extension', 'raw', 'display', 'display_international');
     protected $types_set = array('mobile', 'home_phone', 'home_fax', 'work_phone', 'work_fax', 'pager');
@@ -1158,7 +1158,7 @@ class PiplApi_DateRange
             throw new InvalidArgumentException('Start/End parameters missing');
         }
 
-        if ($this->start > $this->end)
+        if (($this->start && $this->end) && ($this->start > $this->end))
         {
             $t = $this->end;
             $this->end = $this->start;
@@ -1220,7 +1220,6 @@ class PiplApi_DateRange
         // Transform the dict to a DateRange object.
         $newstart = !empty($d['start']) ? $d['start'] : NULL;
         $newend = !empty($d['end']) ? $d['end'] : NULL;
-
         if($newstart) {
             $newstart = PiplApi_Utils::piplapi_str_to_date($newstart);
         }
