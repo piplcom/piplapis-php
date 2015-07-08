@@ -73,7 +73,7 @@ class PiplApi_SearchAPIRequest
     public $person;
     public $configuration;
 
-    private $base_url = 'api.pipl.com/search/v4/?';
+    public static $base_url = 'api.pipl.com/search/v4/?';
 
     static function set_default_configuration($configuration){
         self::$default_configuration = $configuration;
@@ -303,7 +303,7 @@ class PiplApi_SearchAPIRequest
     }
     private function get_base_url(){
         $prefix = $this->get_effective_configuration()->use_https ? "https://" : "http://";
-        return $prefix . $this->base_url;
+        return $prefix . self::$base_url;
     }
 
 }
