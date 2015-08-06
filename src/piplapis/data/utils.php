@@ -156,13 +156,13 @@ class PiplApi_Utils {
     public static function piplapi_alpha_chars($s)
     {
         // Strip all non alphabetic characters from string
-        return preg_replace("/[^A-Za-z]/", '', $s);
+        return preg_replace('/\PL+/u', '', $s);
     }
 
     public static function piplapi_alnum_chars($s)
     {
         // Strip all non alphanumeric characters from string
-        return preg_replace("/[^A-Za-z0-9]/", '', $s);
+        return preg_replace('/[^(\pL|\pN)]/u', '', $s);
     }
 
     public static function piplapi_string_startswith($str1, $str2)

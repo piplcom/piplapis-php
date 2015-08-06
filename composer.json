@@ -7,6 +7,9 @@
     "php": ">=5.2.17",
     "ext-curl": "*"
   },
+  "suggest": {
+    "ext-mbstring": "*"
+  },
   "authors": [
     {
       "name": "Josh Liberty",

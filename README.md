@@ -11,6 +11,7 @@ Library Requirements
 
 * PHP 5.2.17 and above.
 * Make sure php-curl is enabled (Windows: in the php.ini file uncomment `;extension=php_curl.dll`, Linux (Debian derivatives): `apt-get install php5-curl`).
+* Not required, but for input validation of unicode strings mb_string is recommended.
 
 Getting Started & Code Snippets
 -------------------------------
