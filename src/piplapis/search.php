@@ -264,8 +264,11 @@ class PiplApi_SearchAPIRequest
         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         if (in_array($http_status, range(200, 299))){
             return PiplApi_SearchAPIResponse::from_array(json_decode($resp, true));
-        } else {
+        } elseif($resp) {
             $err = PiplApi_SearchAPIError::from_array(json_decode($resp, true));
+            throw $err;
+        } else {
+            $err = new PiplApi_SearchAPIError(curl_error($curl), $http_status);
             throw $err;
         }
     }
