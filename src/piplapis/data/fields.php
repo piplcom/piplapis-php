@@ -388,8 +388,7 @@ class PiplApi_Address extends PiplApi_Field
     {
         // A bool value that indicates whether the address is a valid address 
         // to search by.
-        return (!empty($this->raw) ||
-                   ($this->is_valid_country() && (empty($this->state) || $this->is_valid_state())));
+        return (!empty($this->raw) || !empty($this->city) || !empty($this->state) || !empty($this->country));
     }
      
     public function is_valid_country()
