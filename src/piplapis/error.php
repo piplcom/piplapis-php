@@ -6,14 +6,16 @@ class PiplApi_APIError extends Exception
 {
     // An exception raised when the response from the API contains an error.
     private $error;
+    private $warnings;
     private $http_status_code;
     
-    public function __construct($error, $http_status_code)
+    public function __construct($error, $warnings, $http_status_code)
     {
         // Extend Exception::__construct and set two extra attributes - 
         // error (string) and http_status_code (int).
         parent::__construct($error);
         $this->error = $error;
+        $this->warnings = $warnings;
         $this->http_status_code = $http_status_code;
     }
     
@@ -32,12 +34,13 @@ class PiplApi_APIError extends Exception
     public static function from_array($d)
     {
         // Transform the dict to a error object and return the error.
-        return new self($d['error'], $d['@http_status_code']);
+        return new self($d['error'], $d['warnings'], $d['@http_status_code']);
     }
 
     public function to_array()
     {
         // Return a dict representation of the error.
-        return array('error' => $this->error, '@http_status_code' => $this->http_status_code);
+        return array('error' => $this->error,
+            '@http_status_code' => $this->http_status_code, 'warnings' => $this->warnings);
     }
 }
