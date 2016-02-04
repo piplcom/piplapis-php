@@ -7,7 +7,7 @@ require_once dirname(__FILE__) . '/utils.php';
 class PiplApi_FieldsContainer
 {
     // The base class of Record and Person, made only for inheritance.
-    
+
     public $names = array();
     public $addresses = array();
     public $phones = array();
@@ -23,20 +23,20 @@ class PiplApi_FieldsContainer
     public $urls = array();
     public $dob;
     public $gender;
-    
+
     protected $CLASS_CONTAINER = array(
         'PiplApi_Name' => 'names',
-        'PiplApi_Address' => 'addresses', 
-        'PiplApi_Phone' => 'phones', 
+        'PiplApi_Address' => 'addresses',
+        'PiplApi_Phone' => 'phones',
         'PiplApi_Email' => 'emails',
         'PiplApi_Job' => 'jobs',
         'PiplApi_Ethnicity' => 'ethnicities',
         'PiplApi_OriginCountry' => 'origin_countries',
         'PiplApi_Language' => 'languages',
-        'PiplApi_Education' => 'educations', 
-        'PiplApi_Image' => 'images', 
-        'PiplApi_Username' => 'usernames', 
-        'PiplApi_UserID' => 'user_ids', 
+        'PiplApi_Education' => 'educations',
+        'PiplApi_Image' => 'images',
+        'PiplApi_Username' => 'usernames',
+        'PiplApi_UserID' => 'user_ids',
         'PiplApi_URL' => 'urls'
     );
 
@@ -44,14 +44,14 @@ class PiplApi_FieldsContainer
         'PiplApi_DOB' => 'dob',
         'PiplApi_Gender' => 'gender',
     );
-    
+
     function __construct($fields=array())
     {
-        // `fields` is an array of field objects from 
+        // `fields` is an array of field objects from
         // fields.php.
         $this->add_fields($fields);
     }
-    
+
     public function add_fields($fields)
     {
         // Add the fields to their corresponding container.
@@ -60,11 +60,11 @@ class PiplApi_FieldsContainer
         {
             return;
         }
-        
+
         foreach ($fields as $field)
         {
             $cls = is_object($field) ? get_class($field) : NULL;
-            
+
             if (array_key_exists($cls, $this->CLASS_CONTAINER))
             {
                 $container = $this->CLASS_CONTAINER[$cls];
@@ -77,7 +77,7 @@ class PiplApi_FieldsContainer
             }
         }
     }
-    
+
     public function all_fields()
     {
         // An array with all the fields contained in this object.
@@ -90,14 +90,14 @@ class PiplApi_FieldsContainer
                 $allfields[] = $this->{$val};
             }
         }
-        
+
         return $allfields;
     }
 
     public function fields_from_array($d)
     {
         // Load the fields from the dict, return an array with all the fields.
-        
+
         $fields = array();
 
         foreach (array_keys($this->CLASS_CONTAINER) as $field_cls){
@@ -151,16 +151,16 @@ class PiplApi_FieldsContainer
 class PiplApi_Source extends PiplApi_FieldsContainer
 {
     // A source is a single source of data.
-    // 
+    //
     // Every source object is based on the URL of the
     // page where the data is available, and the data itself that comes as field
     // objects (Name, Address, Email etc. see fields.php).
-    // 
+    //
     // Each type of field has its own container (note that Source is a subclass
     // of FieldsContainer).
-    // 
+    //
     // Sources come as results for a query and therefore they have attributes that
-    // indicate if and how much they match the query. They also have a validity 
+    // indicate if and how much they match the query. They also have a validity
     // timestamp available as an attribute.
 
     private $extended_containers = array(
@@ -179,13 +179,13 @@ class PiplApi_Source extends PiplApi_FieldsContainer
     public $valid_since;
     public $relationships = array();
     public $tags = array();
-    
+
     function __construct($fields = array(), $match = NULL, $name = NULL, $category = NULL, $origin_url = NULL,
                          $sponsored = NULL, $domain = NULL, $person_id = NULL, $id = NULL,
                          $premium = NULL, $valid_since = NULL){
         // Extend FieldsContainer::__construct and set the record's source
         // and attributes.
-        // 
+        //
         // Args:
         //  $fields -- an array of fields
         //  $match -- A float between 0.0 and 1.0 that indicates how likely it is that this source holds data about
@@ -215,7 +215,7 @@ class PiplApi_Source extends PiplApi_FieldsContainer
         $this->match = $match;
         $this->valid_since = $valid_since;
     }
-    
+
     public static function from_array($params)
     {
         // Transform the dict to a record object and return the record.
@@ -232,7 +232,7 @@ class PiplApi_Source extends PiplApi_FieldsContainer
         if (!empty($valid_since)){ $valid_since = PiplApi_Utils::piplapi_str_to_datetime($valid_since); }
 
         $instance = new self(array(), $match, $name, $category, $origin_url, $sponsored, $domain, $person_id,
-                        $source_id, $premium, $valid_since);
+            $source_id, $premium, $valid_since);
         $instance->add_fields($instance->fields_from_array($params));
         return $instance;
     }
@@ -259,26 +259,26 @@ class PiplApi_Source extends PiplApi_FieldsContainer
 class PiplApi_Person extends PiplApi_FieldsContainer
 {
     // A Person object is all the data available on an individual.
-    // 
-    // The Person object is essentially very similar in its structure to the 
+    //
+    // The Person object is essentially very similar in its structure to the
     // Source object, the main difference is that data about an individual can
     // come from multiple sources.
-    // 
+    //
     // The person's data comes as field objects (Name, Address, Email etc. see fields.php).
     // Each type of field has its on container (note that Person is a subclass of FieldsContainer).
     //
     // For example:
-    // 
+    //
     // require_once dirname(__FILE__) . '/data/containers.php';
     // $fields = array(new PiplApi_Email(array('address' => 'clark.kent@example.com')), new PiplApi_Phone(array('number' => 9785550145)));
     // $person = new PiplApi_Person(array('fields' => $fields));
     // print implode(', ', $person->emails); // Outputs "clark.kent@example.com"
     // print implode(', ', $person->phones); // Outputs "+1-9785550145"
-    // 
+    //
     // Note that a person object is used in the Search API in two ways:
     // - It might come back as a result for a query (see PiplApi_SearchAPIResponse).
-    // - It's possible to build a person object with all the information you 
-    //   already have about the person you're looking for and send this object as 
+    // - It's possible to build a person object with all the information you
+    //   already have about the person you're looking for and send this object as
     //   the query (see PiplApi_SearchAPIRequest).
 
     private $extended_containers = array(
@@ -293,9 +293,9 @@ class PiplApi_Person extends PiplApi_FieldsContainer
     {
         // Extend FieldsContainer.initialize and set the record's sources
         // and query_params_match attribute.
-        // 
+        //
         // Args:
-        // 
+        //
         // $fields -- An array of fields (fields.php).
         // $match -- A float value, the person's match score.
         // $id -- GUID. The person's ID.
@@ -306,7 +306,7 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         $this->match = $match;
         $this->id = $id;
     }
-    
+
     public function is_searchable()
     {
         // A bool value that indicates whether the person has enough data and
@@ -315,12 +315,12 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         $searchable = array_filter($all, create_function('$field', 'return $field->is_searchable();'));
         return $this->search_pointer or count($searchable) > 0;
     }
-    
+
     public function unsearchable_fields()
     {
         // An array of all the fields that are invalid and won't be used in the search.
-        
-        // For example: names/usernames that are too short, emails that are 
+
+        // For example: names/usernames that are too short, emails that are
         // invalid etc.
         $all = array_merge($this->names, $this->emails, $this->phones, $this->usernames, $this->addresses, array($this->dob));
         $unsearchable = array_filter($all, create_function('$field', 'return $field && !$field->is_searchable();'));
@@ -415,4 +415,93 @@ class PiplApi_Relationship extends PiplApi_FieldsContainer
     }
 
 
+}
+
+class PiplApi_AvailableData
+{
+    function __construct($basic = NULL, $premium = NULL)
+    {
+        $this->basic = $basic ? PiplApi_FieldCount::from_array($basic) : NULL;
+        $this->premium = $premium ? PiplApi_FieldCount::from_array($premium) : NULL;
+
+    }
+    public static function from_array($params) {
+        $basic = !empty($params['basic']) ? $params['basic'] : NULL;
+        $premium = !empty($params['premium']) ? $params['premium'] : NULL;
+        $instance = new self($basic, $premium);
+        return $instance;
+    }
+    public function to_array() {
+        $res = array();
+        if ($this->basic != NULL)
+            $res['basic'] = $this->basic->to_array();
+        if ($this->premium != NULL)
+            $res['premium'] = $this->premium->to_array();
+        return $res;
+    }
+}
+
+class PiplApi_FieldCount
+{
+    protected $attributes = array(
+        'addresses', 'ethnicities', 'emails', 'dobs', 'genders', 'user_ids', 'social_profiles',
+        'educations', 'jobs', 'images', 'languages', 'origin_countries', 'names', 'phones',
+        'relationships', 'usernames', 'tags'
+    );
+    function __construct($dobs = NULL, $images = NULL, $educations = NULL, $addresses = NULL, $jobs = NULL,
+                         $genders = NULL, $tags = NULL, $ethnicities = NULL, $phones = NULL, $origin_countries = NULL,
+                         $usernames = NULL, $languages = NULL, $emails = NULL, $user_ids = NULL, $relationships = NULL,
+                         $names = NULL, $social_profiles = NULL)
+    {
+        $this->dobs = $dobs;
+        $this->images = $images;
+        $this->educations = $educations;
+        $this->addresses = $addresses;
+        $this->jobs = $jobs;
+        $this->genders = $genders;
+        $this->tags = $tags;
+        $this->ethnicities = $ethnicities;
+        $this->phones = $phones;
+        $this->origin_countries = $origin_countries;
+        $this->usernames = $usernames;
+        $this->languages = $languages;
+        $this->emails = $emails;
+        $this->user_ids = $user_ids;
+        $this->relationships = $relationships;
+        $this->names = $names;
+        $this->social_profiles = $social_profiles;
+    }
+    public static function from_array($params) {
+        $dobs = !empty($params['dobs']) ? $params['dobs'] : NULL;
+        $images =!empty($params['images']) ? $params['images'] : NULL;
+        $educations =!empty($params['educations']) ? $params['educations'] : NULL;
+        $addresses =!empty($params['addresses']) ? $params['addresses'] : NULL;
+        $jobs =!empty($params['jobs']) ? $params['jobs'] : NULL;
+        $genders =!empty($params['genders']) ? $params['genders'] : NULL;
+        $tags =!empty($params['tags']) ? $params['tags'] : NULL;
+        $ethnicities =!empty($params['ethnicities']) ? $params['ethnicities'] : NULL;
+        $phones =!empty($params['phones']) ? $params['phones'] : NULL;
+        $origin_countries =!empty($params['origin_countries']) ? $params['origin_countries'] : NULL;
+        $usernames =!empty($params['usernames']) ? $params['usernames'] : NULL;
+        $languages =!empty($params['languages']) ? $params['languages'] : NULL;
+        $emails =!empty($params['emails']) ? $params['emails'] : NULL;
+        $user_ids =!empty($params['user_ids']) ? $params['user_ids'] : NULL;
+        $relationships =!empty($params['relationships']) ? $params['relationships'] : NULL;
+        $names =!empty($params['names']) ? $params['names'] : NULL;
+        $social_profiles =!empty($params['social_profiles']) ? $params['social_profiles'] : NULL;
+
+        $instance = new self($dobs, $images, $educations, $addresses, $jobs,
+            $genders, $tags, $ethnicities, $phones, $origin_countries,
+            $usernames, $languages, $emails, $user_ids, $relationships,
+            $names, $social_profiles);
+        return $instance;
+    }
+    public function to_array() {
+        $res = array();
+        foreach($this->attributes as $attr) {
+            if ($this->$attr > 0)
+                $res[$attr] = $this->$attr;
+        }
+        return $res;
+    }
 }
