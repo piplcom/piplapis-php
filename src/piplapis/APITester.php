@@ -11,7 +11,7 @@ require 'search.php';
 class APITester extends PHPUnit_Framework_TestCase {
 
     public function setUp(){
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY");
+        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API_V4");
         PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "?developer_class=premium";
     }
 
@@ -107,8 +107,8 @@ class APITester extends PHPUnit_Framework_TestCase {
         $response = $request->send();
         $sources = $response->sources;
         $good_sources = array();
-        foreach ($sources as $source){
-            if($source->person_id != $response->person->id){
+        foreach ($sources as $source) {
+            if ($source->person_id != $response->person->id) {
                 $good_sources[] = $source;
             }
         }
@@ -129,7 +129,9 @@ class APITester extends PHPUnit_Framework_TestCase {
         }
         $this->assertEquals(count($bad_persons), 0);
     }
-    public function test_make_sure_deserialization_works(){
+
+    public function test_make_sure_deserialization_works()
+    {
         $request = new PiplApi_SearchAPIRequest(array("email" => "clark.kent@example.com"));
         $response = $request->send();
         $this->assertEquals($response->person->names[0]->display, "Clark Joseph Kent");
@@ -139,30 +141,357 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertEquals($response->person->jobs[0]->display, "Field Reporter at The Daily Planet (2000-2012)");
         $this->assertEquals($response->person->educations[0]->degree, "B.Sc Advanced Science");
     }
-    public function test_make_sure_md5_search_works(){
+
+    public function test_make_sure_md5_search_works()
+    {
         $request = new PiplApi_SearchAPIRequest(array("person" => new PiplApi_Person(array(
             new PiplApi_Email(array("address_md5" => "e34996fda036d60aa2a595ca86ed8fef"))))));
         $response = $request->send();
         $this->assertTrue($response->person != null);
     }
-    public function test_social_datatypes_are_as_expected(){
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "?developer_class=social";
+
+    public function test_contact_datatypes_are_as_expected()
+    {
+        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API_V5_CONTACT");
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "?developer_class=contact";
         $res = $this->get_narrow_search()->send();
         $fields = $res->person->all_fields();
-        $allowed_types = array('PiplApi_Email', 'PiplApi_URL', 'PiplApi_Username', 'PiplApi_UserID', 'PiplApi_Name', 'PiplApi_Image');
-        foreach($fields as $field){
-            $this->assertContains(get_class($field), $allowed_types);
+        $allowed_types = array('PiplApi_Name', 'PiplApi_Language', 'PiplApi_OriginCountry',
+            'PiplApi_DOB', 'PiplApi_Gender', 'PiplApi_Address', 'PiplApi_Phone'
+        );
+        foreach ($fields as $field) {
+            if ($field instanceof PiplApi_Email) {
+                $this->assertEquals('full.email.available@business.subscription', $field->address);
+            } else {
+                $this->assertContains(get_class($field), $allowed_types);
+            }
         }
     }
-    public function test_make_sure_insufficient_search_isnt_sent(){
+
+    public function test_social_datatypes_are_as_expected()
+    {
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "?developer_class=social";
+        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API_V5_SOCIAL");
+        $res = $this->get_narrow_search()->send();
+        $fields = $res->person->all_fields();
+        $allowed_types = array(
+            'PiplApi_Name', 'PiplApi_Language', 'PiplApi_OriginCountry',
+            'PiplApi_DOB', 'PiplApi_Gender', 'PiplApi_Address', 'PiplApi_Phone', 'PiplApi_URL', 'PiplApi_UserID',
+            'PiplApi_Relationship', 'PiplApi_Image', 'PiplApi_Username'
+        );
+        foreach ($fields as $field) {
+            if ($field instanceof PiplApi_Email) {
+                $this->assertEquals('full.email.available@business.subscription', $field->address);
+            } else {
+                $this->assertContains(get_class($field), $allowed_types);
+            }
+        }
+    }
+
+    public function test_make_sure_insufficient_search_isnt_sent()
+    {
         $request = new PiplApi_SearchAPIRequest(array("first_name" => "brian"));
         try {
             $response = $request->send();
             $failed = false;
-        } catch (Exception $e){
+        } catch (Exception $e) {
             $failed = true;
         }
         $this->assertTrue($failed);
+    }
+
+    public function test_forward_compatibility()
+    {
+        PiplApi_SearchAPIRequest::$base_url .= "&show_unknown_fields=1";
+        $request = new PiplApi_SearchAPIRequest(array("email" => "clark.kent@example.com"));
+        $response = $request->send();
+        $this->assertNotEmpty($response->person);
+    }
+
+    public function test_thumbnail_example()
+    {
+
+        $request = $this->get_narrow_search();
+        $response = $request->send();
+
+        $image = $response->image();
+        # Creating a thumbnail URL
+        $thumbUrl = $image->get_thumbnail_url(200, 100, true, true);
+        $this->assertEquals($thumbUrl, 'http://thumb.pipl.com/image?tokens=AE2861B242686E60DCC84A94133182E59B96A86EDF5CE9A867AD93F69F2F16B904609A85C68DF461669CD8234279CD17684407E6BA05D910D39E374813414564F09C&width=100&height=100&zoom_face=1&favicon=1');
+
+        $first_image = $response->person->images[0];
+        $second_image = $response->person->images[1];
+        # Creating a redundant image URL
+        $thumbUrl = PiplApi_Image::generate_redundant_thumbnail_url($first_image, $second_image, 100, 100);
+        $this->assertEquals($thumbUrl, "http://thumb.pipl.com/image?tokens=AE2861B242686E60DCC84A94133182E59B96A86EDF5CE9A867AD93F69F2F16B904609A85C68DF461669CD8234279CD17684407E6BA05D910D39E374813414564F09C,AE2861B242686E6ACBCD539D133B8AE59A9AE962DB1FA5AA7AF08DAED86B0DFC1E608283D9CDB2322ADF85744B699B543C4E5FE3AC5A925CC78A78485D1B1861F699&width=100&height=100&zoom_face=1&favicon=1");
+    }
+
+    public function test_json_encode() {
+        $request = $this->get_narrow_search();
+        $response = $request->send();
+        $this->assertNotEmpty(json_encode($response));
+        $this->assertNotEmpty(json_encode($response->person));
+    }
+
+    /*
+     * API V5 Tests - unit tests
+     */
+
+    public function test_show_sources_can_be_boolean()
+    {
+        $request = $this->get_narrow_search();
+        $request->configuration = new PiplApi_SearchRequestConfiguration(
+            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+        $request->configuration->show_sources = "dfgdfg";
+
+        try {
+            $request->validate_query_params(true);
+        } catch (InvalidArgumentException $e) {
+            $this->assertEquals($e->getMessage(), 'show_sources has a wrong value, should be "matching", "all" or "true"');
+        }
+
+        $request->configuration->show_sources = "true";
+        $request->validate_query_params(true);
+
+        $request->configuration->show_sources = true;
+        $request->validate_query_params(true);
+
+        $request->configuration->show_sources = "matching";
+        $request->validate_query_params(true);
+
+        $request->configuration->show_sources = "all";
+        $request->validate_query_params(true);
+    }
+
+    public function test_new_country_code()
+    {
+        $country = new PiplApi_Address(array("country" => "BL"));
+        $this->assertTrue($country->is_valid_country());
+
+        $country = new PiplApi_Address(array("country" => "BQ"));
+        $this->assertTrue($country->is_valid_country());
+
+        $country = new PiplApi_Address(array("country" => "MF"));
+        $this->assertTrue($country->is_valid_country());
+
+        $country = new PiplApi_Address(array("country" => "SS"));
+        $this->assertTrue($country->is_valid_country());
+
+        $country = new PiplApi_Address(array("country" => "SX"));
+        $this->assertTrue($country->is_valid_country());
+
+        $country = new PiplApi_Address(array("country" => "XK"));
+        $this->assertTrue($country->is_valid_country());
+
+        $country = new PiplApi_Address(array("country" => "CW"));
+        $this->assertTrue($country->is_valid_country());
+
+        $country = new PiplApi_Address(array("country" => "CS"));
+        $this->assertTrue($country->is_valid_country());
+
+        $country = new PiplApi_Address(array("country" => "RS"));
+        $this->assertTrue($country->is_valid_country());
+    }
+
+    public function test_available_data_object()
+    {
+        $arr = array(
+            "premium" => array(
+                "usernames" => 1,
+                "jobs" => 4,
+                "addresses" => 1,
+                "phones" => 1,
+                "educations" => 1,
+                "languages" => 1,
+                "user_ids" => 4,
+                "social_profiles" => 2,
+                "names" => 1,
+                "images" => 2,
+                "genders" => 0,
+                "emails" => 0
+            )
+        );
+        $av_obj = PiplApi_AvailableData::from_array($arr);
+
+        $this->assertEquals($av_obj->premium->usernames, 1);
+        $this->assertEquals($av_obj->premium->jobs, 4);
+        $this->assertEquals($av_obj->premium->addresses, 1);
+        $this->assertEquals($av_obj->premium->phones, 1);
+        $this->assertEquals($av_obj->premium->educations, 1);
+        $this->assertEquals($av_obj->premium->languages, 1);
+        $this->assertEquals($av_obj->premium->user_ids, 4);
+        $this->assertEquals($av_obj->premium->social_profiles, 2);
+        $this->assertEquals($av_obj->premium->names, 1);
+        $this->assertEquals($av_obj->premium->images, 2);
+        $this->assertEquals($av_obj->premium->genders, 0);
+        $this->assertEquals($av_obj->premium->emails, 0);
+
+        $this->assertEquals($av_obj->to_array(), array("premium" => array("usernames" => 1, "jobs" => 4, "addresses" => 1,
+            "phones" => 1, "educations" => 1, "languages" => 1,
+            "user_ids" => 4, "social_profiles" => 2, "images" => 2,
+            "names" => 1)));
+    }
+
+    public function test_field_count_obj()
+    {
+        $arr = array(
+            "usernames" => 1,
+            "jobs" => 4,
+            "addresses" => 1,
+            "phones" => 1,
+            "educations" => 1,
+            "languages" => 1,
+            "user_ids" => 4,
+            "social_profiles" => 2,
+            "names" => 0,
+            "images" => 0,
+            "genders" => 0,
+            "emails" => 0
+        );
+        $field_count = PiplApi_FieldCount::from_array($arr);
+
+        $this->assertEquals($field_count->usernames, 1);
+        $this->assertEquals($field_count->jobs, 4);
+        $this->assertEquals($field_count->addresses, 1);
+        $this->assertEquals($field_count->phones, 1);
+        $this->assertEquals($field_count->educations, 1);
+        $this->assertEquals($field_count->languages, 1);
+        $this->assertEquals($field_count->user_ids, 4);
+        $this->assertEquals($field_count->social_profiles, 2);
+        $this->assertEquals($field_count->names, 0);
+        $this->assertEquals($field_count->images, 0);
+        $this->assertEquals($field_count->genders, 0);
+        $this->assertEquals($field_count->emails, 0);
+
+        $this->assertEquals($field_count->to_array(), array("usernames" => 1, "jobs" => 4,
+            "addresses" => 1, "phones" => 1, "educations" => 1,
+            "languages" => 1, "user_ids" => 4, "social_profiles" => 2));
+
+        $this->assertArrayNotHasKey("names", $field_count->to_array());
+        $this->assertArrayNotHasKey("images", $field_count->to_array());
+        $this->assertArrayNotHasKey("genders", $field_count->to_array());
+        $this->assertArrayNotHasKey("emails", $field_count->to_array());
+
+    }
+
+    public function test_request_object_match_requirements()
+    {
+        /*
+            Reflection of PiplApi_SearchAPIRequest::get_query_params
+        */
+        $reflector = new ReflectionClass('PiplApi_SearchAPIRequest');
+        $method = $reflector->getMethod('get_query_params');
+        $method->setAccessible(true);
+
+
+        $request = $this->get_narrow_search();
+        $request->configuration = new PiplApi_SearchRequestConfiguration(
+            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+        $request->configuration->match_requirements = "test_value";
+
+        $arr = $method->invoke($request);
+        $this->assertArrayHasKey("match_requirements", $method->invoke($request));
+        $this->assertEquals($arr['match_requirements'], "test_value");
+    }
+
+    public function test_response_match_requirements()
+    {
+        $arr = array(
+            "match_requirements" => "test_word",
+            "@http_status_code" => "test",
+            "@visible_sources" => "test",
+            "@available_sources" => "test",
+            "@search_id" => "test",
+        );
+        $res = PiplApi_SearchAPIResponse::from_array($arr);
+        $this->assertEquals($res->match_requirements, "test_word");
+    }
+
+    public function test_person_inferred_field()
+    {
+        $res = array(
+            "@inferred" => true
+        );
+        $person = PiplApi_Person::from_array($res);
+        $this->assertTrue($person->inferred);
+        $this->assertArrayHasKey('@inferred', $person->to_array());
+
+        # if inderred is false should be omitted on to_array();
+        $res = array(
+            "@inferred" => false
+        );
+        $person = PiplApi_Person::from_array($res);
+        $this->assertFalse($person->inferred);
+        $this->assertArrayNotHasKey('@inferred', $person->to_array());
+    }
+
+    public function test_get_redundant_image_url()
+    {
+        $token_image1 = "token_image1";
+
+        $throw = false;
+        try {
+            PiplApi_Image::generate_redundant_thumbnail_url(NULL, NULL);
+        } catch (InvalidArgumentException $e) {
+            $this->assertEquals($e->getMessage(), 'Please provide at least one image');
+            $throw = true;
+        }
+        $this->assertTrue($throw);
+
+        $throw = false;
+        try {
+            PiplApi_Image::generate_redundant_thumbnail_url($token_image1, NULL);
+        } catch (InvalidArgumentException $e) {
+            $this->assertEquals($e->getMessage(), 'Please provide PiplApi_Image Object');
+            $throw = true;
+        }
+        $this->assertTrue($throw);
+
+
+        $token_image1 = new PiplApi_Image();
+        $throw = false;
+        try {
+            PiplApi_Image::generate_redundant_thumbnail_url($token_image1, "bla");
+        } catch (InvalidArgumentException $e) {
+            $this->assertEquals($e->getMessage(), 'Please provide PiplApi_Image Object');
+            $throw = true;
+        }
+        $this->assertTrue($throw);
+
+
+        $throw = false;
+        try {
+            PiplApi_Image::generate_redundant_thumbnail_url($token_image1);
+        } catch (InvalidArgumentException $e) {
+            $this->assertEquals($e->getMessage(), "You can only generate thumbnail URLs for image objects with a thumbnail token.");
+            $throw = true;
+        }
+        $this->assertTrue($throw);
+
+
+        $token_image1 = new PiplApi_Image(array(
+            "thumbnail_token" => "DE6473138E1&dsid=55",
+        ));
+        $path = PiplApi_Image::generate_redundant_thumbnail_url($token_image1);
+        # if only one image was passed dsid will not be removed
+        $this->assertEquals("http://thumb.pipl.com/image?tokens=DE6473138E1&dsid=55&width=100&height=100&zoom_face=1&favicon=1", $path);
+
+
+        $token_image2 = new PiplApi_Image(array(
+            "thumbnail_token" => "AAAAAAAA&dsid=55",
+        ));
+        $path = PiplApi_Image::generate_redundant_thumbnail_url($token_image1, $token_image2);
+        $this->assertEquals("http://thumb.pipl.com/image?tokens=DE6473138E1,AAAAAAAA&width=100&height=100&zoom_face=1&favicon=1", $path);
+
+    }
+
+    public function test_get_thumbnail_url()
+    {
+        $token_image2 = new PiplApi_Image(array(
+            "thumbnail_token" => "AAAAAAAA&dsid=55",
+        ));
+        $path = $token_image2->get_thumbnail_url();
+        $this->assertEquals("http://thumb.pipl.com/image?tokens=AAAAAAAA&dsid=55&width=100&height=100&zoom_face=1&favicon=1", $path);
     }
 
 }
