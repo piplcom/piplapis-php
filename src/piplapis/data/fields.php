@@ -3,13 +3,13 @@ require_once dirname(__FILE__) . '/utils.php';
 
 
 abstract class PiplApi_Field
-{    
+{
     // Base class of all data fields, made only for inheritance.
 
     protected $attributes = array();
     protected $children = array();
     protected $types_set = array();
-    
+
     protected $internal_params = array();
 
     function __construct($params=array())
@@ -37,7 +37,7 @@ abstract class PiplApi_Field
         }
 
     }
-    
+
     public function __set($name, $val)
     {
         if (in_array($name, $this->attributes) ||
@@ -54,7 +54,7 @@ abstract class PiplApi_Field
                 $this->internal_params[$name] = $val;
             }
     }
-  
+
     public function __get($name)
     {
         if (in_array($name, $this->attributes) ||
@@ -71,7 +71,7 @@ abstract class PiplApi_Field
             }
         return NULL;
     }
-  
+
     public function __isset($name)
     {
         return ((in_array($name, $this->attributes) ||
@@ -79,7 +79,7 @@ abstract class PiplApi_Field
             ($name == 'valid_since') || ($name == "inferred") || ($name == 'current') || ($name == "last_seen")) &&
             array_key_exists($name, $this->internal_params));
     }
-  
+
     public function __unset($name)
     {
         if (in_array($name, $this->attributes) ||
@@ -162,23 +162,23 @@ abstract class PiplApi_Field
 
     public function validate_type($type)
     {
-        // Take an string `type` and raise an InvalidArgumentException if it's not 
+        // Take an string `type` and raise an InvalidArgumentException if it's not
         // a valid type for the object.
-        
-        // A valid type for a field is a value from the types_set attribute of 
+
+        // A valid type for a field is a value from the types_set attribute of
         // that field's class.
-        
+
         if (!empty($type) && !in_array($type, $this->types_set))
         {
             throw new InvalidArgumentException('Invalid type for ' . get_class($this) . ' ' . $type);
         }
     }
-    
+
     public static function from_array($clsname, $d)
     {
         // Transform the dict to a field object and return the field.
         $newdict = array();
-        
+
         foreach ($d as $key => $val)
         {
             if (PiplApi_Utils::piplapi_string_startswith($key, '@'))
@@ -195,29 +195,29 @@ abstract class PiplApi_Field
             {
                 $val = PiplApi_Utils::piplapi_str_to_datetime($val);
             }
-            
+
             if ($key == 'date_range')
             {
                 // PiplApi_DateRange has its own from_array implementation
                 $val = PiplApi_DateRange::from_array($val);
             }
-            
+
             $newdict[$key] = $val;
         }
-        
+
         return new $clsname($newdict);
     }
-    
+
     private function internal_mapcb_attrsarr($attr)
     {
         return array($attr => '@');
     }
-    
+
     private function internal_mapcb_childrenarr($attr)
     {
         return array($attr => '');
     }
-    
+
     public function to_array()
     {
         // Return a dict representation of the field.
@@ -232,29 +232,29 @@ abstract class PiplApi_Field
         }
         $newattr = array_map(array($this, "internal_mapcb_attrsarr"), $this->attributes);
         $newchild = array_map(array($this, "internal_mapcb_childrenarr"), $this->children);
-        
+
         // $newattr and $newchild are multidimensionals- this is used to iterate over them
         // we first merge the two arrays and then create an iterator that flattens them
         $it = new RecursiveIteratorIterator(new RecursiveArrayIterator(array_merge($newattr, $newchild)));
-        
+
         foreach ($it as $key => $prefix)
         {
             if (array_key_exists($key, $this->internal_params))
             {
                 $value = $this->internal_params[$key];
-                
+
                 if (isset($value) && is_object($value) && method_exists($value, 'to_array'))
                 {
                     $value = $value->to_array();
                 }
-                
+
                 if (isset($value))
                 {
                     $d[$prefix . $key] = $value;
                 }
             }
         }
-        
+
         return $d;
     }
 
@@ -275,15 +275,15 @@ class PiplApi_Name extends PiplApi_Field
     {
         extract($params);
         parent::__construct($params);
-        // `prefix`, `first`, `middle`, `last`, `suffix`, `raw`, `type`, 
+        // `prefix`, `first`, `middle`, `last`, `suffix`, `raw`, `type`,
         // should all be strings.
         //
         // `raw` is an unparsed name like "Clark Joseph Kent", usefull when you
         // want to search by name and don't want to work hard to parse it.
-        // Note that in response data there's never name.raw, the names in 
-        // the response are always parsed, this is only for querying with 
+        // Note that in response data there's never name.raw, the names in
+        // the response are always parsed, this is only for querying with
         // an unparsed name.
-        // 
+        //
         // `type` is one of PiplApi_Name::$types_set.
 
         if (!empty($prefix))
@@ -322,7 +322,7 @@ class PiplApi_Name extends PiplApi_Field
 
     public function is_searchable()
     {
-        // A bool value that indicates whether the name is a valid name to 
+        // A bool value that indicates whether the name is a valid name to
         // search by.
         $first = PiplApi_Utils::piplapi_alpha_chars(!empty($this->first) ? $this->first : '');
         $last = PiplApi_Utils::piplapi_alpha_chars(!empty($this->last) ? $this->last : '');
@@ -348,19 +348,19 @@ class PiplApi_Address extends PiplApi_Field
         // `country`, `state`, `city`, `po_box`, `zip_code`, `street`, `house`, `apartment`,
         // `raw`, `type`, should all be strings.
         //
-        // `country` and `state` are country code (like "US") and state code 
-        // (like "NY"), note that the full value is available as 
+        // `country` and `state` are country code (like "US") and state code
+        // (like "NY"), note that the full value is available as
         // address.country_full and address.state_full.
-        // 
-        // `raw` is an unparsed address like "123 Marina Blvd, San Francisco, 
-        // California, US", usefull when you want to search by address and don't 
+        //
+        // `raw` is an unparsed address like "123 Marina Blvd, San Francisco,
+        // California, US", usefull when you want to search by address and don't
         // want to work hard to parse it.
-        // Note that in response data there's never address.raw, the addresses in 
-        // the response are always parsed, this is only for querying with 
+        // Note that in response data there's never address.raw, the addresses in
+        // the response are always parsed, this is only for querying with
         // an unparsed address.
-        // 
+        //
         // `type` is one of PiplApi_Address::$types_set.
-        // 
+        //
 
         if (!empty($country))
         {
@@ -410,14 +410,14 @@ class PiplApi_Address extends PiplApi_Field
 
     public function is_searchable()
     {
-        // A bool value that indicates whether the address is a valid address 
+        // A bool value that indicates whether the address is a valid address
         // to search by.
         return (!empty($this->raw) || !empty($this->city) || !empty($this->state) || !empty($this->country));
     }
 
     public function is_valid_country()
     {
-        // A bool value that indicates whether the object's country is a valid 
+        // A bool value that indicates whether the object's country is a valid
         // country code.
         return (!empty($this->country) &&
             array_key_exists(strtoupper($this->country), PiplApi_Utils::$piplapi_countries));
@@ -425,7 +425,7 @@ class PiplApi_Address extends PiplApi_Field
 
     public function is_valid_state()
     {
-        // A bool value that indicates whether the object's state is a valid 
+        // A bool value that indicates whether the object's state is a valid
         // state code.
         return ($this->is_valid_country() &&
             array_key_exists(strtoupper($this->country), PiplApi_Utils::$piplapi_states) &&
@@ -516,7 +516,7 @@ class PiplApi_Phone extends PiplApi_Field
 
     public function is_searchable()
     {
-        // A bool value that indicates whether the phone is a valid phone 
+        // A bool value that indicates whether the phone is a valid phone
         // to search by.
         return (!empty($this->raw) || (!empty($this->number) && (empty($this->country_code) || $this->country_code == 1)));
     }
@@ -531,7 +531,7 @@ class PiplApi_Phone extends PiplApi_Field
 class PiplApi_Email extends PiplApi_Field
 {
     // An email address of a person with the md5 of the address, might come
-    // in some cases without the address itself and just the md5 (for privacy 
+    // in some cases without the address itself and just the md5 (for privacy
     // reasons).
 
     protected $attributes = array('type', "disposable", "email_provider");
@@ -570,7 +570,7 @@ class PiplApi_Email extends PiplApi_Field
 
     public function is_valid_email()
     {
-        // A bool value that indicates whether the address is a valid 
+        // A bool value that indicates whether the address is a valid
         // email address.
 
         return (!empty($this->address) && preg_match($this->re_email, $this->address));
@@ -578,7 +578,7 @@ class PiplApi_Email extends PiplApi_Field
 
     public function is_searchable()
     {
-        // A bool value that indicates whether the email is a valid email 
+        // A bool value that indicates whether the email is a valid email
         // to search by.
         return !empty($this->address_md5) || $this->is_valid_email();
     }
@@ -588,7 +588,7 @@ class PiplApi_Email extends PiplApi_Field
     {
         if (0 == strcasecmp($name, 'username'))
         {
-            // string, the username part of the email or None if the email is 
+            // string, the username part of the email or None if the email is
             // invalid.
 
             // $email = new PiplApi_Email(array('address' => 'eric@cartman.com'));
@@ -602,7 +602,7 @@ class PiplApi_Email extends PiplApi_Field
         }
         else if (0 == strcasecmp($name, 'domain'))
         {
-            // string, the domain part of the email or None if the email is 
+            // string, the domain part of the email or None if the email is
             // invalid.
 
             // $email = new PiplApi_Email(array('address' => 'eric@cartman.com'));
@@ -860,12 +860,46 @@ class PiplApi_Image extends PiplApi_Field
     }
     public function get_thumbnail_url($width=100, $height=100, $zoom_face=true, $favicon=true, $use_https=false){
         if(!empty($this->thumbnail_token)){
-            $prefix = $use_https ? "https" : "http";
-            $params = array("width" => $width, "height" => $height, "zoom_face" => $zoom_face, "favicon" => $favicon);
-            $url = $prefix . "://thumb.pipl.com/image?token=" . $this->thumbnail_token . "&" . http_build_query($params);
-            return $url;
+            return self::generate_redundant_thumbnail_url($this);
         }
         return NULL;
+    }
+    public static function generate_redundant_thumbnail_url($first_image, $second_image=NULL, $width=100, $height=100,
+                                                            $zoom_face=true, $favicon=true, $use_https=false){
+        if (empty($first_image) && empty($second_image))
+            throw new InvalidArgumentException('Please provide at least one image');
+
+
+        if ((!empty($first_image) && !($first_image instanceof PiplApi_Image)) ||
+            (!empty($second_image) && !($second_image instanceof PiplApi_Image)))
+        {
+            throw new InvalidArgumentException('Please provide PiplApi_Image Object');
+        }
+
+        $images = array();
+
+        if (!empty($first_image->thumbnail_token))
+            $images[] = $first_image->thumbnail_token;
+
+        if (!empty($second_image->thumbnail_token))
+            $images[] = $second_image->thumbnail_token;
+
+        if (empty($images))
+            throw new InvalidArgumentException("You can only generate thumbnail URLs for image objects with a thumbnail token.");
+
+        if (sizeof($images) == 1)
+            $tokens = $images[0];
+        else {
+            foreach ($images as $key=>$token) {
+                $images[$key] = preg_replace("/&dsid=\d+/i","", $token);
+            }
+            $tokens = join(",", array_values($images));
+        }
+
+        $prefix = $use_https ? "https" : "http";
+        $params = array("width" => $width, "height" => $height, "zoom_face" => $zoom_face, "favicon" => $favicon);
+        $url = $prefix . "://thumb.pipl.com/image?tokens=" . $tokens . "&" . http_build_query($params);
+        return $url;
     }
     public function __toString(){
         return $this->url;
@@ -884,7 +918,7 @@ class PiplApi_Job extends PiplApi_Field
         parent::__construct($params);
 
         // `title`, `organization`, `industry`, should all be strings.
-        // `date_range` is A DateRange object (PiplApi_DateRange), 
+        // `date_range` is A DateRange object (PiplApi_DateRange),
         // that's the time the person held this job.
 
         if (!empty($title))
@@ -923,7 +957,7 @@ class PiplApi_Education extends PiplApi_Field
         parent::__construct($params);
 
         // `degree` and `school` should both be strings.
-        // `date_range` is A DateRange object (PiplApi_DateRange), 
+        // `date_range` is A DateRange object (PiplApi_DateRange),
         // that's the time the person was studying.
 
         if (!empty($degree))
@@ -1121,9 +1155,9 @@ class PiplApi_URL extends PiplApi_Field
 
 class PiplApi_Tag extends PiplApi_Field
 {
-    // A general purpose element that holds any meaningful string that's 
+    // A general purpose element that holds any meaningful string that's
     // related to the person.
-    // Used for holding data about the person that either couldn't be clearly 
+    // Used for holding data about the person that either couldn't be clearly
     // classified or was classified as something different than the available
     // data fields.
 
@@ -1135,7 +1169,7 @@ class PiplApi_Tag extends PiplApi_Field
         extract($params);
         parent::__construct($params);
 
-        // `content` is the tag itself, both `content` and `classification` 
+        // `content` is the tag itself, both `content` and `classification`
         // should be strings.
 
 
@@ -1167,7 +1201,7 @@ class PiplApi_DateRange
     {
         // `start` and `end` are DateTime objects, at least one is required.
 
-        // For creating a DateRange object for an exact date (like if exact 
+        // For creating a DateRange object for an exact date (like if exact
         // date-of-birth is known) just pass the same value for `start` and `end`.
 
         if (!empty($start))
@@ -1206,7 +1240,7 @@ class PiplApi_DateRange
 
     public function is_exact()
     {
-        // True if the object holds an exact date (start=end), 
+        // True if the object holds an exact date (start=end),
         // False otherwise.
         return ($this->start == $this->end);
     }
@@ -1225,7 +1259,7 @@ class PiplApi_DateRange
 
     public function years_range()
     {
-        // A tuple of two ints - the year of the start date and the year of the 
+        // A tuple of two ints - the year of the start date and the year of the
         // end date.
         if(!($this->start && $this->end)){
             return NULL;
