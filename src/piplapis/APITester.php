@@ -407,6 +407,22 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertEquals($res->match_requirements, "test_word");
     }
 
+    public function test_last_seen_and_current_attrs(){
+        $arr = array(
+            'first' => "tester",
+            'last' => "tester",
+            'current' => true,
+            'last_seen' => "2015-04-11",
+            'valid_since' => "2015-04-11",
+        );
+        $name = PiplApi_Name::from_array('PiplApi_Name', $arr);
+
+        $this->assertEquals("tester", $name->first);
+        $this->assertEquals("tester", $name->last);
+        $this->assertEquals(true, $name->current);
+        $this->assertEquals(new DateTime("2015-04-11",new DateTimeZone('GMT')), $name->last_seen);
+    }
+
     public function test_person_inferred_field()
     {
         $res = array(
