@@ -25,9 +25,10 @@ class PiplApi_SearchRequestConfiguration
     public $live_feeds = NULL;
     public $use_https = NULL;
     public $hide_sponsored = NULL;
+    public $match_requirements = NULL;
 
     function __construct($api_key = "sample_key", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
-                         $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false){
+                         $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false, $match_requirements = NULL){
         $this->api_key = $api_key;
         $this->minimum_probability = $minimum_probability;
         $this->minimum_match = $minimum_match;
@@ -35,6 +36,7 @@ class PiplApi_SearchRequestConfiguration
         $this->live_feeds = $live_feeds;
         $this->hide_sponsored = $hide_sponsored;
         $this->use_https = $use_https;
+        $this->match_requirements = $match_requirements;
     }
 
 }
@@ -73,7 +75,7 @@ class PiplApi_SearchAPIRequest
     public $person;
     public $configuration;
 
-    public static $base_url = 'api.pipl.com/search/v4/?';
+    public static $base_url = 'api.pipl.com/search/?';
 
     static function set_default_configuration($configuration){
         self::$default_configuration = $configuration;
@@ -167,7 +169,7 @@ class PiplApi_SearchAPIRequest
 
         if (!empty($search_params['from_age']) || !empty($search_params['to_age'])){
             $dob = PiplApi_DOB::from_age_range(!empty($search_params['from_age']) ? $search_params['from_age'] : 0,
-                                               !empty($search_params['to_age']) ? $search_params['to_age'] : 1000);
+                !empty($search_params['to_age']) ? $search_params['to_age'] : 1000);
             $person->add_fields(array($dob));
         }
 
@@ -193,8 +195,8 @@ class PiplApi_SearchAPIRequest
         }
 
         if($strict && (isset($this->get_effective_configuration()->show_sources) &&
-                !in_array($this->get_effective_configuration()->show_sources, array("all", "matching")))){
-            throw new InvalidArgumentException('show_sources has a wrong value, should be "matching" or "all"');
+                !in_array($this->get_effective_configuration()->show_sources, array("all", "matching", "true")))){
+            throw new InvalidArgumentException('show_sources has a wrong value, should be "matching", "all" or "true"');
         }
 
         if($strict && isset($this->get_effective_configuration()->minimum_probability) &&
@@ -257,8 +259,8 @@ class PiplApi_SearchAPIRequest
         $params = $this->get_query_params();
         $url = $this->get_base_url();
         curl_setopt_array($curl, array(CURLOPT_RETURNTRANSFER => 1, CURLOPT_URL => $url,
-                                       CURLOPT_USERAGENT => PiplApi_Utils::PIPLAPI_USERAGENT, CURLOPT_POST => count($params),
-					                   CURLOPT_POSTFIELDS => $params));
+            CURLOPT_USERAGENT => PiplApi_Utils::PIPLAPI_USERAGENT, CURLOPT_POST => count($params),
+            CURLOPT_POSTFIELDS => $params));
 
         $resp = curl_exec($curl);
         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -302,6 +304,9 @@ class PiplApi_SearchAPIRequest
         if($this->get_effective_configuration()->minimum_match) {
             $query['minimum_match'] = $this->get_effective_configuration()->minimum_match;
         }
+        if($this->get_effective_configuration()->match_requirements) {
+            $query['match_requirements'] = $this->get_effective_configuration()->match_requirements;
+        }
         return $query;
     }
     private function get_base_url(){
@@ -311,7 +316,7 @@ class PiplApi_SearchAPIRequest
 
 }
 
-class PiplApi_SearchAPIResponse {
+class PiplApi_SearchAPIResponse implements JsonSerializable {
 
     //    A response comprises the three things returned as a result to your query:
     //
@@ -359,7 +364,7 @@ class PiplApi_SearchAPIResponse {
 
 
     public function __construct($http_status_code, $query, $visible_sources, $available_sources, $search_id, $warnings,
-                         $person, $possible_persons, $sources){
+                                $person, $possible_persons, $sources, $available_data, $match_requirements){
         // Args:
         //  http_status_code -- The resposne code. 2xx if successful.
         //  query -- A PiplApi_Person object with the query as interpreted by Pipl.
@@ -373,6 +378,10 @@ class PiplApi_SearchAPIResponse {
         //  visible_sources -- the number of sources in response
         //  available_sources -- the total number of known sources for this search
         //  search_id -- a unique ID which identifies this search. Useful for debugging.
+        //  available_data - showing the data available for your query.
+        //  match_requirements - str/unicode, a match requirements criteria. This criteria defines what fields
+        //                       must be present in an API response in order for it to be returned as a match.
+        //                       For example: "email" or "email or phone", or "email or (phone and name)"
 
         $this->http_status_code = $http_status_code;
         $this->visible_sources = $visible_sources;
@@ -380,9 +389,11 @@ class PiplApi_SearchAPIResponse {
         $this->search_id = $search_id;
         $this->query = $query;
         $this->person = $person;
+        $this->match_requirements = $match_requirements;
         $this->possible_persons = !empty($possible_persons) ? $possible_persons : array();
         $this->sources = !empty($sources) ? $sources : array();
         $this->warnings = !empty($warnings) ? $warnings : array();
+        $this->available_data = !empty($available_data) ? $available_data : array();
     }
     public function group_sources($key_function)
     {
@@ -473,6 +484,14 @@ class PiplApi_SearchAPIResponse {
             }
         }
 
+        if (!empty($this->available_data)){
+            $d['available_data']  = $this->available_data->to_array();
+        }
+
+        if (!empty($this->match_requirements)){
+            $d['match_requirements']  = $this->match_requirements;
+        }
+
         return $d;
     }
     public static function from_array($d)
@@ -496,6 +515,7 @@ class PiplApi_SearchAPIResponse {
                 $sources[] = PiplApi_Source::from_array($source);
             }
         }
+
         $possible_persons = array();
         if(array_key_exists("possible_persons", $d) && count($d['possible_persons']) > 0){
             foreach($d["possible_persons"] as $possible_person){
@@ -503,8 +523,23 @@ class PiplApi_SearchAPIResponse {
             }
         }
 
+        /*
+         * API V5 - New Objects
+         */
+
+        $available_data = NULL;
+        if(!empty($d['available_data'])){
+            $available_data = PiplApi_AvailableData::from_array($d['available_data']);
+        }
+
+        $match_requirements = NULL;
+        if(!empty($d['match_requirements'])){
+            $match_requirements = $d['match_requirements'];
+        }
+
         $response = new PiplApi_SearchAPIResponse($d["@http_status_code"], $query, $d["@visible_sources"],
-            $d["@available_sources"], $d["@search_id"], $warnings, $person, $possible_persons, $sources);
+            $d["@available_sources"], $d["@search_id"], $warnings, $person, $possible_persons, $sources,
+            $available_data, $match_requirements);
         return $response;
 
     }
@@ -558,6 +593,17 @@ class PiplApi_SearchAPIResponse {
         return ($this->person && count($this->person->urls) > 0) ? $this->person->urls[0] : NULL;
     }
 
+    /**
+     * Specify data which should be serialized to JSON
+     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    function jsonSerialize()
+    {
+        return $this->to_array();
+    }
 }
 
 class PiplApi_SearchAPIError extends PiplApi_APIError {
