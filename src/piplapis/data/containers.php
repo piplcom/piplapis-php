@@ -287,9 +287,10 @@ class PiplApi_Person extends PiplApi_FieldsContainer
     public $id;
     public $search_pointer;
     public $match;
+    public $inferred;
     public $relationships = array();
 
-    function __construct($fields = array(), $id = NULL, $search_pointer = NULL, $match = NULL)
+    function __construct($fields = array(), $id = NULL, $search_pointer = NULL, $match = NULL, $inferred = false)
     {
         // Extend FieldsContainer.initialize and set the record's sources
         // and query_params_match attribute.
@@ -305,6 +306,7 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         $this->search_pointer = $search_pointer;
         $this->match = $match;
         $this->id = $id;
+        $this->inferred = $inferred;
     }
 
     public function is_searchable()
@@ -333,8 +335,9 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         $id = !empty($params['@id']) ? $params['@id'] : NULL;
         $search_pointer = !empty($params['@search_pointer']) ? $params['@search_pointer'] : NULL;
         $match = !empty($params['@match']) ? $params['@match'] : NULL;
+        $inferred = !empty($params['@inferred']) ? $params['@inferred'] : false;
 
-        $instance = new self(array(), $id, $search_pointer, $match);
+        $instance = new self(array(), $id, $search_pointer, $match, $inferred);
         $instance->add_fields($instance->fields_from_array($params));
         return $instance;
     }
@@ -347,6 +350,7 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         if (!empty($this->id)){ $d['@id'] = $this->id; }
         if (!is_null($this->match)){ $d['@match'] = $this->match; }
         if (!empty($this->search_pointer)){ $d['@search_pointer'] = $this->search_pointer; }
+        if ($this->inferred){ $d['@inferred'] = $this->inferred; }
 
         return array_merge($d, $this->fields_to_array());
     }
