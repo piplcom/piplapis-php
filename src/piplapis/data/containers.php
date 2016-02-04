@@ -4,7 +4,7 @@ require_once dirname(__FILE__) . '/fields.php';
 require_once dirname(__FILE__) . '/utils.php';
 
 
-class PiplApi_FieldsContainer
+class PiplApi_FieldsContainer implements JsonSerializable
 {
     // The base class of Record and Person, made only for inheritance.
 
@@ -101,21 +101,25 @@ class PiplApi_FieldsContainer
         $fields = array();
 
         foreach (array_keys($this->CLASS_CONTAINER) as $field_cls){
-            $container = $this->CLASS_CONTAINER[$field_cls];
-            if (array_key_exists($container, $d)){
-                $field_array = $d[$container];
-                foreach ($field_array as $x){
-                    $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
-                    $fields[] = call_user_func($from_array_func, $field_cls, $x);
+            if (array_key_exists($field_cls,$this->CLASS_CONTAINER)) {
+                $container = $this->CLASS_CONTAINER[$field_cls];
+                if (array_key_exists($container, $d)) {
+                    $field_array = $d[$container];
+                    foreach ($field_array as $x) {
+                        $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
+                        $fields[] = call_user_func($from_array_func, $field_cls, $x);
+                    }
                 }
             }
         }
         foreach (array_keys($this->singular_fields) as $field_cls){
-            $container = $this->singular_fields[$field_cls];
-            if (array_key_exists($container, $d)){
-                $field_array = $d[$container];
-                $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
-                $fields[] = call_user_func($from_array_func, $field_cls, $field_array);
+            if (array_key_exists($field_cls,$this->singular_fields)) {
+                $container = $this->singular_fields[$field_cls];
+                if (array_key_exists($container, $d)) {
+                    $field_array = $d[$container];
+                    $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
+                    $fields[] = call_user_func($from_array_func, $field_cls, $field_array);
+                }
             }
         }
         return $fields;
@@ -145,8 +149,19 @@ class PiplApi_FieldsContainer
         }
         return $d;
     }
-}
 
+    /**
+     * Specify data which should be serialized to JSON
+     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    function jsonSerialize()
+    {
+        return $this->to_array();
+    }
+}
 
 class PiplApi_Source extends PiplApi_FieldsContainer
 {
