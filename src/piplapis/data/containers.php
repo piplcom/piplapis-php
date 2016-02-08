@@ -101,25 +101,21 @@ class PiplApi_FieldsContainer implements JsonSerializable
         $fields = array();
 
         foreach (array_keys($this->CLASS_CONTAINER) as $field_cls){
-            if (array_key_exists($field_cls,$this->CLASS_CONTAINER)) {
-                $container = $this->CLASS_CONTAINER[$field_cls];
-                if (array_key_exists($container, $d)) {
-                    $field_array = $d[$container];
-                    foreach ($field_array as $x) {
-                        $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
-                        $fields[] = call_user_func($from_array_func, $field_cls, $x);
-                    }
+            $container = $this->CLASS_CONTAINER[$field_cls];
+            if (array_key_exists($container, $d)) {
+                $field_array = $d[$container];
+                foreach ($field_array as $x) {
+                    $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
+                    $fields[] = call_user_func($from_array_func, $field_cls, $x);
                 }
             }
         }
         foreach (array_keys($this->singular_fields) as $field_cls){
-            if (array_key_exists($field_cls,$this->singular_fields)) {
-                $container = $this->singular_fields[$field_cls];
-                if (array_key_exists($container, $d)) {
-                    $field_array = $d[$container];
-                    $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
-                    $fields[] = call_user_func($from_array_func, $field_cls, $field_array);
-                }
+            $container = $this->singular_fields[$field_cls];
+            if (array_key_exists($container, $d)) {
+                $field_array = $d[$container];
+                $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
+                $fields[] = call_user_func($from_array_func, $field_cls, $field_array);
             }
         }
         return $fields;
@@ -465,10 +461,10 @@ class PiplApi_FieldCount
     protected $attributes = array(
         'addresses', 'ethnicities', 'emails', 'dobs', 'genders', 'user_ids', 'social_profiles',
         'educations', 'jobs', 'images', 'languages', 'origin_countries', 'names', 'phones',
-        'relationships', 'usernames', 'tags'
+        'relationships', 'usernames'
     );
     function __construct($dobs = NULL, $images = NULL, $educations = NULL, $addresses = NULL, $jobs = NULL,
-                         $genders = NULL, $tags = NULL, $ethnicities = NULL, $phones = NULL, $origin_countries = NULL,
+                         $genders = NULL, $ethnicities = NULL, $phones = NULL, $origin_countries = NULL,
                          $usernames = NULL, $languages = NULL, $emails = NULL, $user_ids = NULL, $relationships = NULL,
                          $names = NULL, $social_profiles = NULL)
     {
@@ -478,7 +474,6 @@ class PiplApi_FieldCount
         $this->addresses = $addresses;
         $this->jobs = $jobs;
         $this->genders = $genders;
-        $this->tags = $tags;
         $this->ethnicities = $ethnicities;
         $this->phones = $phones;
         $this->origin_countries = $origin_countries;
@@ -497,7 +492,6 @@ class PiplApi_FieldCount
         $addresses =!empty($params['addresses']) ? $params['addresses'] : NULL;
         $jobs =!empty($params['jobs']) ? $params['jobs'] : NULL;
         $genders =!empty($params['genders']) ? $params['genders'] : NULL;
-        $tags =!empty($params['tags']) ? $params['tags'] : NULL;
         $ethnicities =!empty($params['ethnicities']) ? $params['ethnicities'] : NULL;
         $phones =!empty($params['phones']) ? $params['phones'] : NULL;
         $origin_countries =!empty($params['origin_countries']) ? $params['origin_countries'] : NULL;
@@ -510,7 +504,7 @@ class PiplApi_FieldCount
         $social_profiles =!empty($params['social_profiles']) ? $params['social_profiles'] : NULL;
 
         $instance = new self($dobs, $images, $educations, $addresses, $jobs,
-            $genders, $tags, $ethnicities, $phones, $origin_countries,
+            $genders, $ethnicities, $phones, $origin_countries,
             $usernames, $languages, $emails, $user_ids, $relationships,
             $names, $social_profiles);
         return $instance;

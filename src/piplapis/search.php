@@ -364,7 +364,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
 
 
     public function __construct($http_status_code, $query, $visible_sources, $available_sources, $search_id, $warnings,
-                                $person, $possible_persons, $sources, $available_data, $match_requirements){
+                                $person, $possible_persons, $sources, $available_data = NULL, $match_requirements = NULL){
         // Args:
         //  http_status_code -- The resposne code. 2xx if successful.
         //  query -- A PiplApi_Person object with the query as interpreted by Pipl.

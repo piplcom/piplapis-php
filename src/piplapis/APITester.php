@@ -19,12 +19,10 @@ class APITester extends PHPUnit_Framework_TestCase {
         $search = new PiplApi_SearchAPIRequest(array("first_name" => "Brian", "last_name" => "Perks"));
         return $search;
     }
-
     private function get_narrow_search(){
         $search = new PiplApi_SearchAPIRequest(array("email" => "brianperks@gmail.com"));
         return $search;
     }
-
     public function test_basic_request(){
         $response = $this->get_broad_search()->send();
         $this->assertEquals(200, $response->http_status_code);
@@ -293,8 +291,7 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertTrue($country->is_valid_country());
     }
 
-    public function test_available_data_object()
-    {
+    public function test_available_data_object() {
         $arr = array(
             "premium" => array(
                 "usernames" => 1,
@@ -348,8 +345,8 @@ class APITester extends PHPUnit_Framework_TestCase {
             "genders" => 0,
             "emails" => 0
         );
-        $field_count = PiplApi_FieldCount::from_array($arr);
 
+        $field_count = PiplApi_FieldCount::from_array($arr);
         $this->assertEquals($field_count->usernames, 1);
         $this->assertEquals($field_count->jobs, 4);
         $this->assertEquals($field_count->addresses, 1);
@@ -371,11 +368,8 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertArrayNotHasKey("images", $field_count->to_array());
         $this->assertArrayNotHasKey("genders", $field_count->to_array());
         $this->assertArrayNotHasKey("emails", $field_count->to_array());
-
     }
-
-    public function test_request_object_match_requirements()
-    {
+    public function test_request_object_match_requirements() {
         /*
             Reflection of PiplApi_SearchAPIRequest::get_query_params
         */
@@ -394,8 +388,7 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertEquals($arr['match_requirements'], "test_value");
     }
 
-    public function test_response_match_requirements()
-    {
+    public function test_response_match_requirements() {
         $arr = array(
             "match_requirements" => "test_word",
             "@http_status_code" => "test",
@@ -407,7 +400,7 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertEquals($res->match_requirements, "test_word");
     }
 
-    public function test_last_seen_and_current_attrs(){
+    public function test_last_seen_and_current_attrs() {
         $arr = array(
             'first' => "tester",
             'last' => "tester",
