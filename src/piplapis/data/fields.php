@@ -684,6 +684,11 @@ class PiplApi_UserID extends PiplApi_Field
         }
     }
 
+    public function is_searchable()
+    {
+        return (!empty($this->content)) && strpos($this->content,'@') >= 0;
+    }
+
     public function __toString(){
         return $this->content;
     }
@@ -1145,6 +1150,11 @@ class PiplApi_URL extends PiplApi_Field
     public function is_valid_url()
     {
         // A bool value that indicates whether the URL is a valid URL.
+        return (!empty($this->url) && PiplApi_Utils::piplapi_is_valid_url($this->url));
+    }
+
+    public function is_searchable()
+    {
         return (!empty($this->url) && PiplApi_Utils::piplapi_is_valid_url($this->url));
     }
 

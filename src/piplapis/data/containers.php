@@ -324,7 +324,7 @@ class PiplApi_Person extends PiplApi_FieldsContainer
     {
         // A bool value that indicates whether the person has enough data and
         // can be sent as a query to the API.
-        $all = array_merge( $this->names, $this->emails, $this->phones, $this->usernames);
+        $all = array_merge( $this->names, $this->emails, $this->phones, $this->usernames, $this->user_ids, $this->urls);
         $searchable = array_filter($all, create_function('$field', 'return $field->is_searchable();'));
         return $this->search_pointer or count($searchable) > 0;
     }
@@ -335,7 +335,8 @@ class PiplApi_Person extends PiplApi_FieldsContainer
 
         // For example: names/usernames that are too short, emails that are
         // invalid etc.
-        $all = array_merge($this->names, $this->emails, $this->phones, $this->usernames, $this->addresses, array($this->dob));
+        $all = array_merge($this->names, $this->emails, $this->phones, $this->usernames, $this->addresses,
+            $this->user_ids, $this->urls, array($this->dob));
         $unsearchable = array_filter($all, create_function('$field', 'return $field && !$field->is_searchable();'));
         return $unsearchable;
     }

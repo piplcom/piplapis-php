@@ -155,6 +155,14 @@ class PiplApi_SearchAPIRequest
             $person->add_fields(array(new PiplApi_Username(array('content' => $search_params['username']))));
         }
 
+        if (!empty($search_params['user_id'])){
+            $person->add_fields(array(new PiplApi_UserID(array('content' => $search_params['user_id']))));
+        }
+
+        if (!empty($search_params['url'])){
+            $person->add_fields(array(new PiplApi_URL(array('url' => $search_params['url']))));
+        }
+
         if (!empty($search_params['country']) || !empty($search_params['state']) || !empty($search_params['city'])){
             $country = !empty($search_params['country']) ? $search_params['country'] : NULL;
             $state = !empty($search_params['state']) ? $search_params['state'] : NULL;
@@ -221,7 +229,7 @@ class PiplApi_SearchAPIRequest
 
         if (!$this->person->is_searchable())
         {
-            throw new InvalidArgumentException('No valid name/username/phone/email in request');
+            throw new InvalidArgumentException('No valid name/username/phone/email/user_id/url in request');
         }
     }
     public function url()

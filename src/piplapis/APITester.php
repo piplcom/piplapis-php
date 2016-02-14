@@ -11,8 +11,8 @@ require 'search.php';
 class APITester extends PHPUnit_Framework_TestCase {
 
     public function setUp(){
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API_V4");
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "?developer_class=premium";
+        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API");
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "4?developer_class=premium";
     }
 
     private function get_broad_search(){
@@ -150,8 +150,8 @@ class APITester extends PHPUnit_Framework_TestCase {
 
     public function test_contact_datatypes_are_as_expected()
     {
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API_V5_CONTACT");
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "?developer_class=contact";
+        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API");
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=contact";
         $res = $this->get_narrow_search()->send();
         $fields = $res->person->all_fields();
         $allowed_types = array('PiplApi_Name', 'PiplApi_Language', 'PiplApi_OriginCountry',
@@ -168,8 +168,8 @@ class APITester extends PHPUnit_Framework_TestCase {
 
     public function test_social_datatypes_are_as_expected()
     {
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "?developer_class=social";
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API_V5_SOCIAL");
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=social";
+        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API");
         $res = $this->get_narrow_search()->send();
         $fields = $res->person->all_fields();
         $allowed_types = array(
@@ -215,13 +215,15 @@ class APITester extends PHPUnit_Framework_TestCase {
         $image = $response->image();
         # Creating a thumbnail URL
         $thumbUrl = $image->get_thumbnail_url(200, 100, true, true);
-        $this->assertEquals($thumbUrl, 'http://thumb.pipl.com/image?tokens=AE2861B242686E60DCC84A94133182E59B96A86EDF5CE9A867AD93F69F2F16B904609A85C68DF461669CD8234279CD17684407E6BA05D910D39E374813414564F09C&width=100&height=100&zoom_face=1&favicon=1');
+        $this->assertEquals($thumbUrl,
+            'http://thumb.pipl.com/image?tokens=AE2861B242686E60DCC84A94133182E59B96A86EDF5CE9A867AD93F69F2F16B904609A85C68DF461669CD8234279CD17684407E6BA05D910D39E&dsid=51102&width=100&height=100&zoom_face=1&favicon=1');
 
         $first_image = $response->person->images[0];
         $second_image = $response->person->images[1];
         # Creating a redundant image URL
         $thumbUrl = PiplApi_Image::generate_redundant_thumbnail_url($first_image, $second_image, 100, 100);
-        $this->assertEquals($thumbUrl, "http://thumb.pipl.com/image?tokens=AE2861B242686E60DCC84A94133182E59B96A86EDF5CE9A867AD93F69F2F16B904609A85C68DF461669CD8234279CD17684407E6BA05D910D39E374813414564F09C,AE2861B242686E6ACBCD539D133B8AE59A9AE962DB1FA5AA7AF08DAED86B0DFC1E608283D9CDB2322ADF85744B699B543C4E5FE3AC5A925CC78A78485D1B1861F699&width=100&height=100&zoom_face=1&favicon=1");
+        $this->assertEquals($thumbUrl,
+            "http://thumb.pipl.com/image?tokens=AE2861B242686E60DCC84A94133182E59B96A86EDF5CE9A867AD93F69F2F16B904609A85C68DF461669CD8234279CD17684407E6BA05D910D39E,AE2861B242686E6ACBCD539D133B8AE59A9AE962DB1FA5AA7AF08DAED86B0DFC1E608283D9CDB2322ADF85744B699B543C4E5FE3AC5A92&width=100&height=100&zoom_face=1&favicon=1");
     }
 
     public function test_json_encode() {
@@ -494,6 +496,20 @@ class APITester extends PHPUnit_Framework_TestCase {
 
     }
 
+    public function test_request_extarct_user_id() {
+        $request = new PiplApi_SearchAPIRequest(
+            array("user_id" => "10019355@gravatar")
+        );
+        $this->assertEquals($request->person->user_ids[0], "10019355@gravatar");
+    }
+
+    public function test_request_extract_url() {
+        $request = new PiplApi_SearchAPIRequest(
+            array("url" => "http://facebook.com/asdasd/")
+        );
+        $this->assertEquals($request->person->urls[0], "http://facebook.com/asdasd/");
+    }
+
     public function test_get_thumbnail_url()
     {
         $token_image2 = new PiplApi_Image(array(
@@ -501,6 +517,60 @@ class APITester extends PHPUnit_Framework_TestCase {
         ));
         $path = $token_image2->get_thumbnail_url();
         $this->assertEquals("http://thumb.pipl.com/image?tokens=AAAAAAAA&dsid=55&width=100&height=100&zoom_face=1&favicon=1", $path);
+    }
+
+    public function test_search_by_user_id() {
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+        $request = new PiplApi_SearchAPIRequest(array("user_id" => "1077462361@facebook"));
+        $request->configuration = new PiplApi_SearchRequestConfiguration(
+            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+        $response = $request->send();
+        $this->assertEquals($response->person->names[0]->display, "Mark Parris");
+    }
+
+    public function test_search_by_url() {
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+        $request = new PiplApi_SearchAPIRequest(array("url" => "https://www.linkedin.com/pub/superman/20/7a/365"));
+        $request->configuration = new PiplApi_SearchRequestConfiguration(
+            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+        $response = $request->send();
+        $this->assertEquals($response->person->jobs[0]->display, "Senior Superhero at Superheros Inc (since 1902)");
+        $this->assertEquals($response->person->jobs[1]->display,
+            "Kryptonian Physician Apprentice Program at Superheros Inc (1900-1902)");
+    }
+
+    public function test_search_by_unknown_user_id() {
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+        $request = new PiplApi_SearchAPIRequest(array("user_id" => "10019355@blabla"));
+        $request->configuration = new PiplApi_SearchRequestConfiguration(
+            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+
+        $throw = false;
+        try {
+            $response = $request->send();
+        } catch (PiplApi_APIError $e) {
+            $this->assertEquals($e->getMessage(),
+                'The query does not contain any valid name/username/user_id/phone/email/address to search by');
+            $throw = true;
+        }
+        $this->assertTrue($throw);
+    }
+
+    public function test_search_by_unknown_url() {
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+        $request = new PiplApi_SearchAPIRequest(array("url" => "http://asd.com"));
+        $request->configuration = new PiplApi_SearchRequestConfiguration(
+            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+
+        $throw = false;
+        try {
+            $response = $request->send();
+        } catch (PiplApi_APIError $e) {
+            $this->assertEquals($e->getMessage(),
+                'The query does not contain any valid name/username/user_id/phone/email/address to search by');
+            $throw = true;
+        }
+        $this->assertTrue($throw);
     }
 
 }
