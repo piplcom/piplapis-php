@@ -407,7 +407,9 @@ class PiplApi_Address extends PiplApi_Field
             $this->display = $display;
         }
     }
-
+    public function is_sole_searchable() {
+        return (!empty($this->raw) or (!empty($this->city) and !empty($this->street) and !empty($this->house)));
+    }
     public function is_searchable()
     {
         // A bool value that indicates whether the address is a valid address

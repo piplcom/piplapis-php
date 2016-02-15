@@ -324,9 +324,11 @@ class PiplApi_Person extends PiplApi_FieldsContainer
     {
         // A bool value that indicates whether the person has enough data and
         // can be sent as a query to the API.
-        $all = array_merge( $this->names, $this->emails, $this->phones, $this->usernames, $this->user_ids, $this->urls);
+        $all = array_merge($this->names, $this->emails, $this->phones, $this->usernames, $this->user_ids, $this->urls);
         $searchable = array_filter($all, create_function('$field', 'return $field->is_searchable();'));
-        return $this->search_pointer or count($searchable) > 0;
+        $searchable_address = array_filter($this->addresses,
+            create_function('$field', 'return $field->is_sole_searchable();'));
+        return $searchable_address or $this->search_pointer or count($searchable) > 0;
     }
 
     public function unsearchable_fields()

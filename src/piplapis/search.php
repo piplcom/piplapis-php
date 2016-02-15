@@ -229,7 +229,7 @@ class PiplApi_SearchAPIRequest
 
         if (!$this->person->is_searchable())
         {
-            throw new InvalidArgumentException('No valid name/username/phone/email/user_id/url in request');
+            throw new InvalidArgumentException('No valid name/username/phone/email/address/user_id/url in request');
         }
     }
     public function url()

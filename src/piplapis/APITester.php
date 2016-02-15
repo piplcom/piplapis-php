@@ -599,4 +599,34 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertTrue($throw);
     }
 
+    public function test_sole_searchable_address() {
+        $address = new PiplApi_Address(array("raw" => "blabla"));
+        $this->assertTrue($address->is_sole_searchable());
+
+        $address = new PiplApi_Address(array("city" => "blabla","street"=>"bla", "house"=>"12"));
+        $this->assertTrue($address->is_sole_searchable());
+
+        $address = new PiplApi_Address(array("city" => "blabla","street"=>"bla"));
+        $this->assertFalse($address->is_sole_searchable());
+
+        $address = new PiplApi_Address(array("city" => "blabla"));
+        $this->assertFalse($address->is_sole_searchable());
+    }
+
+    public function test_search_request_with_address_only() {
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+        $request = new PiplApi_SearchAPIRequest(array("country" => "USA", "city"=>"New York", "street"=>"wall street", "house"=>12));
+        $request->configuration = new PiplApi_SearchRequestConfiguration(
+            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+        $response = $request->send();
+    }
+
+    public function test_search_request_with_raw_address_only() {
+        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+        $request = new PiplApi_SearchAPIRequest(array("raw_address"=> "16900 N Bay Road North Miami Beach, FL"));
+        $request->configuration = new PiplApi_SearchRequestConfiguration(
+            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+        $response = $request->send();
+    }
+
 }
