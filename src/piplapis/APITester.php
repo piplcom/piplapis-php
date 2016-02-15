@@ -538,7 +538,33 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertEquals($response->person->jobs[1]->display,
             "Kryptonian Physician Apprentice Program at Superheros Inc (1900-1902)");
     }
+    public function test_userid_is_searchable() {
+        $user_id = new PiplApi_UserID();
+        $this->assertFalse($user_id->is_searchable());
 
+        $user_id = new PiplApi_UserID(array("content" => "blabla"));
+        $this->assertFalse($user_id->is_searchable());
+
+        $user_id = new PiplApi_UserID(array("content" => "blabla@"));
+        $this->assertFalse($user_id->is_searchable());
+
+        $user_id = new PiplApi_UserID(array("content" => "@asdas"));
+        $this->assertFalse($user_id->is_searchable());
+
+        $user_id = new PiplApi_UserID(array("content" => "asdsa@asdas"));
+        $this->assertTrue($user_id->is_searchable());
+
+        $user_id = new PiplApi_UserID(array("content" => "1@1"));
+        $this->assertTrue($user_id->is_searchable());
+    }
+
+    public function test_url_is_searchable() {
+        $user_id = new PiplApi_URL(array("url" => "blabla"));
+        $this->assertTrue($user_id->is_searchable());
+
+        $user_id = new PiplApi_URL();
+        $this->assertFalse($user_id->is_searchable());
+    }
     public function test_search_by_unknown_user_id() {
         PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
         $request = new PiplApi_SearchAPIRequest(array("user_id" => "10019355@blabla"));

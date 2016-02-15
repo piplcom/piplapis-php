@@ -686,7 +686,7 @@ class PiplApi_UserID extends PiplApi_Field
 
     public function is_searchable()
     {
-        return (!empty($this->content)) && strpos($this->content,'@') >= 0;
+        return (!empty($this->content)) && preg_match('/(.)@(.)/', $this->content);
     }
 
     public function __toString(){
@@ -1155,7 +1155,7 @@ class PiplApi_URL extends PiplApi_Field
 
     public function is_searchable()
     {
-        return (!empty($this->url) && PiplApi_Utils::piplapi_is_valid_url($this->url));
+        return (!empty($this->url));
     }
 
     public function __toString(){
