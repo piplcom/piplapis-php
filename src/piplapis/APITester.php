@@ -519,25 +519,26 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertEquals("http://thumb.pipl.com/image?tokens=AAAAAAAA&dsid=55&width=100&height=100&zoom_face=1&favicon=1", $path);
     }
 
-    public function test_search_by_user_id() {
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
-        $request = new PiplApi_SearchAPIRequest(array("user_id" => "1077462361@facebook"));
-        $request->configuration = new PiplApi_SearchRequestConfiguration(
-            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
-        $response = $request->send();
-        $this->assertEquals($response->person->names[0]->display, "Mark Parris");
-    }
+//    public function test_search_by_user_id() {
+//        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+//        $request = new PiplApi_SearchAPIRequest(array("user_id" => "1077462361@facebook"));
+//        $request->configuration = new PiplApi_SearchRequestConfiguration(
+//            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+//        $response = $request->send();
+//        $this->assertEquals($response->person->names[0]->display, "Mark Parris");
+//    }
+//
+//    public function test_search_by_url() {
+//        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+//        $request = new PiplApi_SearchAPIRequest(array("url" => "https://www.linkedin.com/pub/superman/20/7a/365"));
+//        $request->configuration = new PiplApi_SearchRequestConfiguration(
+//            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+//        $response = $request->send();
+//        $this->assertEquals($response->person->jobs[0]->display, "Senior Superhero at Superheros Inc (since 1902)");
+//        $this->assertEquals($response->person->jobs[1]->display,
+//            "Kryptonian Physician Apprentice Program at Superheros Inc (1900-1902)");
+//    }
 
-    public function test_search_by_url() {
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
-        $request = new PiplApi_SearchAPIRequest(array("url" => "https://www.linkedin.com/pub/superman/20/7a/365"));
-        $request->configuration = new PiplApi_SearchRequestConfiguration(
-            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
-        $response = $request->send();
-        $this->assertEquals($response->person->jobs[0]->display, "Senior Superhero at Superheros Inc (since 1902)");
-        $this->assertEquals($response->person->jobs[1]->display,
-            "Kryptonian Physician Apprentice Program at Superheros Inc (1900-1902)");
-    }
     public function test_userid_is_searchable() {
         $user_id = new PiplApi_UserID();
         $this->assertFalse($user_id->is_searchable());
@@ -613,20 +614,30 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertFalse($address->is_sole_searchable());
     }
 
-    public function test_search_request_with_address_only() {
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
-        $request = new PiplApi_SearchAPIRequest(array("country" => "USA", "city"=>"New York", "street"=>"wall street", "house"=>12));
-        $request->configuration = new PiplApi_SearchRequestConfiguration(
-            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
-        $response = $request->send();
-    }
-
-    public function test_search_request_with_raw_address_only() {
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
-        $request = new PiplApi_SearchAPIRequest(array("raw_address"=> "16900 N Bay Road North Miami Beach, FL"));
-        $request->configuration = new PiplApi_SearchRequestConfiguration(
-            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
-        $response = $request->send();
-    }
+//    public function test_search_request_with_address_only()
+//    {
+//        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API");
+//        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+//        $request = new PiplApi_SearchAPIRequest(
+//            array("person" => new PiplApi_Person(array(
+//                new PiplApi_Address(array(
+//                    "country" => "North Carolina",
+//                    "city" => "Raleigh",
+//                    "street" => "Harrington Grove Drive",
+//                    "house" => "5213")))
+//            )));
+//        $request->configuration = new PiplApi_SearchRequestConfiguration(
+//            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+//        $response = $request->send();
+//    }
+//
+//    public function test_search_request_with_raw_address_only()
+//    {
+//
+//        $request = new PiplApi_SearchAPIRequest(array("raw_address" => "5213 Harrington Grove Drive, Raleigh, North Carolina"));
+//        $request->configuration = new PiplApi_SearchRequestConfiguration(
+//            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
+//        $response = $request->send();
+//    }
 
 }
