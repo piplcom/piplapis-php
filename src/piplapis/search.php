@@ -26,9 +26,11 @@ class PiplApi_SearchRequestConfiguration
     public $use_https = NULL;
     public $hide_sponsored = NULL;
     public $match_requirements = NULL;
+    public $source_category_requirements = NULL;
 
     function __construct($api_key = "sample_key", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
-                         $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false, $match_requirements = NULL){
+                         $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false, $match_requirements = NULL,
+                         $source_category_requirements = NULL){
         $this->api_key = $api_key;
         $this->minimum_probability = $minimum_probability;
         $this->minimum_match = $minimum_match;
@@ -37,6 +39,7 @@ class PiplApi_SearchRequestConfiguration
         $this->hide_sponsored = $hide_sponsored;
         $this->use_https = $use_https;
         $this->match_requirements = $match_requirements;
+        $this->source_category_requirements = $source_category_requirements;
     }
 
 }
@@ -278,7 +281,7 @@ class PiplApi_SearchAPIRequest
             $err = PiplApi_SearchAPIError::from_array(json_decode($resp, true));
             throw $err;
         } else {
-            $err = new PiplApi_SearchAPIError(curl_error($curl), $http_status);
+            $err = new PiplApi_SearchAPIError(curl_error($curl), null, $http_status);
             throw $err;
         }
     }
@@ -314,6 +317,9 @@ class PiplApi_SearchAPIRequest
         }
         if($this->get_effective_configuration()->match_requirements) {
             $query['match_requirements'] = $this->get_effective_configuration()->match_requirements;
+        }
+        if($this->get_effective_configuration()->source_category_requirements) {
+            $query['source_category_requirements'] = $this->get_effective_configuration()->source_category_requirements;
         }
         return $query;
     }
@@ -368,11 +374,15 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
     public $http_status_code;
     public $visible_sources;
     public $available_sources;
+    public $available_data;
     public $search_id;
+    public $match_requirements;
+    public $source_category_requirements;
 
 
     public function __construct($http_status_code, $query, $visible_sources, $available_sources, $search_id, $warnings,
-                                $person, $possible_persons, $sources, $available_data = NULL, $match_requirements = NULL){
+                                $person, $possible_persons, $sources, $available_data = NULL,
+                                $match_requirements = NULL, $source_category_requirements = NULL){
         // Args:
         //  http_status_code -- The resposne code. 2xx if successful.
         //  query -- A PiplApi_Person object with the query as interpreted by Pipl.
@@ -387,9 +397,8 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         //  available_sources -- the total number of known sources for this search
         //  search_id -- a unique ID which identifies this search. Useful for debugging.
         //  available_data - showing the data available for your query.
-        //  match_requirements - str/unicode, a match requirements criteria. This criteria defines what fields
-        //                       must be present in an API response in order for it to be returned as a match.
-        //                       For example: "email" or "email or phone", or "email or (phone and name)"
+        // match_requirements: string. Shows how Pipl interpreted your match_requirements criteria.
+        // source_category_requirements: string. Shows how Pipl interpreted your source_category_requirements criteria.
 
         $this->http_status_code = $http_status_code;
         $this->visible_sources = $visible_sources;
@@ -398,6 +407,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         $this->query = $query;
         $this->person = $person;
         $this->match_requirements = $match_requirements;
+        $this->source_category_requirements = $source_category_requirements;
         $this->possible_persons = !empty($possible_persons) ? $possible_persons : array();
         $this->sources = !empty($sources) ? $sources : array();
         $this->warnings = !empty($warnings) ? $warnings : array();
@@ -545,9 +555,14 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
             $match_requirements = $d['match_requirements'];
         }
 
+        $source_category_requirements = NULL;
+        if(!empty($d['source_category_requirements'])){
+            $source_category_requirements = $d['source_category_requirements'];
+        }
+
         $response = new PiplApi_SearchAPIResponse($d["@http_status_code"], $query, $d["@visible_sources"],
             $d["@available_sources"], $d["@search_id"], $warnings, $person, $possible_persons, $sources,
-            $available_data, $match_requirements);
+            $available_data, $match_requirements, $source_category_requirements);
         return $response;
 
     }
