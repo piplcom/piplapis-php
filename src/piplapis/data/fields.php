@@ -539,7 +539,7 @@ class PiplApi_Email extends PiplApi_Field
     protected $attributes = array('type', "disposable", "email_provider");
     protected $children = array('address', 'address_md5');
     protected $types_set = array('personal', 'work');
-    private $re_email = '/^[\w.%\-+]+@[\w.%\-]+\.[a-zA-Z]{2,6}$/';
+    private $re_email = '/^[a-zA-Z0-9\'._%\-+]+@[a-zA-Z0-9._%\-]+\.[a-zA-Z]{2,24}$/';
 
     function __construct($params=array())
     {
