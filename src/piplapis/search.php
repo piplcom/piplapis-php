@@ -297,7 +297,11 @@ class PiplApi_SearchAPIRequest
         if (in_array($http_status, range(200, 299))) {
             // Trying to parse header_raw from curl request
             $headers = $this->extract_headers_from_curl($header_raw);
-            return PiplApi_SearchAPIResponse::from_array(json_decode($body, true), $headers);
+            $res = PiplApi_SearchAPIResponse::from_array(json_decode($body, true), $headers);
+
+            // save the raw json to response object
+            $res->raw_json = $body;
+            return $res;
         } elseif ($resp) {
             $err = PiplApi_SearchAPIError::from_array(json_decode($body, true));
             throw $err;
@@ -416,7 +420,13 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
     public $search_id;
     public $match_requirements;
     public $source_category_requirements;
-
+    public $persons_count;
+    public $qps_allotted;
+    public $qps_current;
+    public $quota_allotted;
+    public $quota_current;
+    public $quota_reset;
+    public $raw_json;
 
     public function __construct($http_status_code, $query, $visible_sources, $available_sources, $search_id, $warnings,
                                 $person, $possible_persons, $sources, $available_data = NULL,
@@ -468,6 +478,9 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         $this->quota_allotted = $quota_allotted;
         $this->quota_current = $quota_current;
         $this->quota_reset = $quota_reset;
+
+        // raw json
+        $this->raw_json = NULL;
     }
     public function group_sources($key_function)
     {
