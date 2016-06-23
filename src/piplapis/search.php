@@ -27,10 +27,11 @@ class PiplApi_SearchRequestConfiguration
     public $hide_sponsored = NULL;
     public $match_requirements = NULL;
     public $source_category_requirements = NULL;
+    public $infer_persons = NULL;
 
     function __construct($api_key = "sample_key", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
                          $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false, $match_requirements = NULL,
-                         $source_category_requirements = NULL){
+                         $source_category_requirements = NULL, $infer_persons = NULL){
         $this->api_key = $api_key;
         $this->minimum_probability = $minimum_probability;
         $this->minimum_match = $minimum_match;
@@ -40,6 +41,7 @@ class PiplApi_SearchRequestConfiguration
         $this->use_https = $use_https;
         $this->match_requirements = $match_requirements;
         $this->source_category_requirements = $source_category_requirements;
+        $this->infer_persons = $infer_persons;
     }
 
 }
@@ -224,6 +226,12 @@ class PiplApi_SearchAPIRequest
             throw new InvalidArgumentException('minimum_match should be a float between 0 and 1');
         }
 
+        if ($strict && isset($this->get_effective_configuration()->infer_persons) &&
+            (!(is_bool($this->get_effective_configuration()->infer_persons) ||
+             is_null($this->get_effective_configuration()->infer_persons)))) {
+            throw new InvalidArgumentException('infer_persons must be true, false or null');
+        }
+
         if ($strict && $unsearchable = $this->person->unsearchable_fields())
         {
             $display_strings = array_map(create_function('$field', 'return $field->get_representation();'), $unsearchable);
@@ -334,6 +342,10 @@ class PiplApi_SearchAPIRequest
         if($this->get_effective_configuration()->source_category_requirements) {
             $query['source_category_requirements'] = $this->get_effective_configuration()->source_category_requirements;
         }
+        if($this->get_effective_configuration()->infer_persons) {
+            $query['infer_persons'] = $this->get_effective_configuration()->infer_persons;
+        }
+
         return $query;
     }
     private function get_base_url(){
