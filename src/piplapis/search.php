@@ -269,16 +269,29 @@ class PiplApi_SearchAPIRequest
         $curl = curl_init();
         $params = $this->get_query_params();
         $url = $this->get_base_url();
-        curl_setopt_array($curl, array(CURLOPT_RETURNTRANSFER => 1, CURLOPT_URL => $url,
-            CURLOPT_USERAGENT => PiplApi_Utils::PIPLAPI_USERAGENT, CURLOPT_POST => count($params),
-            CURLOPT_POSTFIELDS => $params));
-
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HEADER => 1,
+            CURLOPT_VERBOSE => 0,
+            CURLOPT_URL => $url,
+            CURLOPT_USERAGENT => PiplApi_Utils::PIPLAPI_USERAGENT,
+            CURLOPT_POST => count($params),
+            CURLOPT_POSTFIELDS => $params,
+            CURLOPT_HTTPHEADER => array('Expect:')
+        ));
         $resp = curl_exec($curl);
+
+        #https://github.com/zendframework/zend-http/issues/24
+        #https://github.com/kriswallsmith/Buzz/issues/181
+        list($header_raw, $body) = explode("\r\n\r\n", $resp, 2);
+
         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if (in_array($http_status, range(200, 299))){
-            return PiplApi_SearchAPIResponse::from_array(json_decode($resp, true));
-        } elseif($resp) {
-            $err = PiplApi_SearchAPIError::from_array(json_decode($resp, true));
+        if (in_array($http_status, range(200, 299))) {
+            // Trying to parse header_raw from curl request
+            $headers = $this->extract_headers_from_curl($header_raw);
+            return PiplApi_SearchAPIResponse::from_array(json_decode($body, true), $headers);
+        } elseif ($resp) {
+            $err = PiplApi_SearchAPIError::from_array(json_decode($body, true));
             throw $err;
         } else {
             $err = new PiplApi_SearchAPIError(curl_error($curl), null, $http_status);
@@ -328,8 +341,21 @@ class PiplApi_SearchAPIRequest
         return $prefix . self::$base_url;
     }
 
+    private function extract_headers_from_curl($header_raw)
+    {
+        $headers = array();
+        foreach (explode("\r\n", $header_raw) as $i => $line) {
+            if ($i === 0)
+                $headers['http_code'] = $line;
+            else {
+                list ($key, $value) = explode(': ', $line);
+                $key = strtolower($key);
+                $headers[$key] = $value;
+            }
+        }
+        return $headers;
+    }
 }
-
 class PiplApi_SearchAPIResponse implements JsonSerializable {
 
     //    A response comprises the three things returned as a result to your query:
@@ -382,7 +408,10 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
 
     public function __construct($http_status_code, $query, $visible_sources, $available_sources, $search_id, $warnings,
                                 $person, $possible_persons, $sources, $available_data = NULL,
-                                $match_requirements = NULL, $source_category_requirements = NULL, $persons_count = NULL){
+                                $match_requirements = NULL, $source_category_requirements = NULL, $persons_count = NULL,
+                                $qps_allotted = NULL, $qps_current = NULL, $quota_allotted = NULL, $quota_current = NULL,
+                                $quota_reset = NULL)
+    {
         // Args:
         //  http_status_code -- The resposne code. 2xx if successful.
         //  query -- A PiplApi_Person object with the query as interpreted by Pipl.
@@ -414,6 +443,19 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         $this->warnings = !empty($warnings) ? $warnings : array();
         $this->available_data = !empty($available_data) ? $available_data : array();
         $this->persons_count = !empty($persons_count) ? $persons_count : (!empty($person) ? 1 : count($this->possible_persons));
+
+        // Header Parsed Parameters http://pipl.com/dev/reference/#errors
+        // qps_allotted- int | The number of queries you are allowed to do per second.
+        // qps_current- int | The number of queries you have run this second.
+        // quota_allotted- int | Your quota limit.
+        // quota_current- int | Your used quota.
+        // quota_reset- DateTime Object | The time (in UTC) that your quota will be reset.
+
+        $this->qps_allotted = $qps_allotted;
+        $this->qps_current = $qps_current;
+        $this->quota_allotted = $quota_allotted;
+        $this->quota_current = $quota_current;
+        $this->quota_reset = $quota_reset;
     }
     public function group_sources($key_function)
     {
@@ -517,7 +559,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
 
         return $d;
     }
-    public static function from_array($d)
+    public static function from_array($d, $headers=array())
     {
         // Transform the array to a response object and return the response.
         $warnings = !empty($d['warnings']) ? $d['warnings'] : array();
@@ -546,9 +588,16 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
             }
         }
 
-        /*
-         * API V5 - New Objects
-         */
+        // Handle headers
+
+        $qps_allotted = !empty($headers['x-apikey-qps-allotted']) ? intval($headers['x-apikey-qps-allotted']) : null;
+        $qps_current = !empty($headers['x-apikey-qps-current']) ? intval($headers['x-apikey-qps-current']) : null;
+        $quota_allotted = !empty($headers['x-apikey-quota-allotted']) ? intval($headers['x-apikey-quota-allotted']) : null;
+        $quota_current = !empty($headers['x-apikey-quota-current']) ? intval($headers['x-apikey-quota-current']) : null;
+        $quota_reset = !empty($headers['x-quota-reset']) ?
+            DateTime::createFromFormat(PiplApi_Utils::PIPLAPI_DATE_QUOTA_RESET, $headers['x-quota-reset']) : null;
+
+        // API V5 - New attributes
 
         $available_data = NULL;
         if(!empty($d['available_data'])){
@@ -572,7 +621,8 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
 
         $response = new PiplApi_SearchAPIResponse($d["@http_status_code"], $query, $d["@visible_sources"],
             $d["@available_sources"], $d["@search_id"], $warnings, $person, $possible_persons, $sources,
-            $available_data, $match_requirements, $source_category_requirements, $persons_count);
+            $available_data, $match_requirements, $source_category_requirements, $persons_count,
+            $qps_allotted, $qps_current, $quota_allotted, $quota_current, $quota_reset);
         return $response;
 
     }

@@ -4,6 +4,7 @@ class PiplApi_Utils {
 
     const PIPLAPI_TIMESTAMP_FORMAT = "Y-m-d";
     const PIPLAPI_DATE_FORMAT = "Y-m-d";
+    const PIPLAPI_DATE_QUOTA_RESET = "l, F d, Y H:i:s A e";
     const PIPLAPI_VERSION = "4.0.0";
     const PIPLAPI_USERAGENT = "piplapis/php/4.0.0";
 
