@@ -382,7 +382,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
 
     public function __construct($http_status_code, $query, $visible_sources, $available_sources, $search_id, $warnings,
                                 $person, $possible_persons, $sources, $available_data = NULL,
-                                $match_requirements = NULL, $source_category_requirements = NULL){
+                                $match_requirements = NULL, $source_category_requirements = NULL, $persons_count = NULL){
         // Args:
         //  http_status_code -- The resposne code. 2xx if successful.
         //  query -- A PiplApi_Person object with the query as interpreted by Pipl.
@@ -397,8 +397,9 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         //  available_sources -- the total number of known sources for this search
         //  search_id -- a unique ID which identifies this search. Useful for debugging.
         //  available_data - showing the data available for your query.
-        // match_requirements: string. Shows how Pipl interpreted your match_requirements criteria.
-        // source_category_requirements: string. Shows how Pipl interpreted your source_category_requirements criteria.
+        //  match_requirements: string. Shows how Pipl interpreted your match_requirements criteria.
+        //  source_category_requirements: string. Shows how Pipl interpreted your source_category_requirements criteria.
+        //  persons_count : int. The number of persons in this response.
 
         $this->http_status_code = $http_status_code;
         $this->visible_sources = $visible_sources;
@@ -412,6 +413,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         $this->sources = !empty($sources) ? $sources : array();
         $this->warnings = !empty($warnings) ? $warnings : array();
         $this->available_data = !empty($available_data) ? $available_data : array();
+        $this->persons_count = !empty($persons_count) ? $persons_count : (!empty($person) ? 1 : count($this->possible_persons));
     }
     public function group_sources($key_function)
     {
@@ -478,6 +480,9 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         }
         if (!empty($this->search_id)){
             $d['@search_id'] = $this->search_id;
+        }
+        if (!empty($this->persons_count)){
+            $d['@persons_count']  = $this->persons_count;
         }
 
         if (!empty($this->warnings)){
@@ -560,9 +565,14 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
             $source_category_requirements = $d['source_category_requirements'];
         }
 
+        $persons_count = NULL;
+        if (!empty($d['@persons_count'])) {
+            $persons_count = $d['@persons_count'];
+        }
+
         $response = new PiplApi_SearchAPIResponse($d["@http_status_code"], $query, $d["@visible_sources"],
             $d["@available_sources"], $d["@search_id"], $warnings, $person, $possible_persons, $sources,
-            $available_data, $match_requirements, $source_category_requirements);
+            $available_data, $match_requirements, $source_category_requirements, $persons_count);
         return $response;
 
     }
