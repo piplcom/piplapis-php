@@ -31,7 +31,8 @@ class PiplApi_SearchRequestConfiguration
 
     function __construct($api_key = "sample_key", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
                          $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false, $match_requirements = NULL,
-                         $source_category_requirements = NULL, $infer_persons = NULL){
+                         $source_category_requirements = NULL, $infer_persons = NULL)
+    {
         $this->api_key = $api_key;
         $this->minimum_probability = $minimum_probability;
         $this->minimum_match = $minimum_match;
@@ -82,17 +83,20 @@ class PiplApi_SearchAPIRequest
 
     public static $base_url = 'api.pipl.com/search/?';
 
-    static function set_default_configuration($configuration){
+    static function set_default_configuration($configuration)
+    {
         self::$default_configuration = $configuration;
     }
-    static function get_default_configuration(){
-        if(!isset(self::$default_configuration)){
+
+    static function get_default_configuration()
+    {
+        if (!isset(self::$default_configuration)) {
             self::$default_configuration = new PiplApi_SearchRequestConfiguration();
         }
         return self::$default_configuration;
     }
 
-    public function __construct($search_params=array(), $configuration=NULL)
+    public function __construct($search_params = array(), $configuration = NULL)
     {
         // Initiate a new request object with given query params.
         //
@@ -130,13 +134,13 @@ class PiplApi_SearchAPIRequest
         // strings.
 
         # Set default configuration
-        if(is_null(self::$default_configuration)){
+        if (is_null(self::$default_configuration)) {
             self::$default_configuration = new PiplApi_SearchRequestConfiguration();
         }
 
         $person = !empty($search_params['person']) ? $search_params['person'] : new PiplApi_Person();
 
-        if (!empty($search_params['first_name']) || !empty($search_params['middle_name']) || !empty($search_params['last_name'])){
+        if (!empty($search_params['first_name']) || !empty($search_params['middle_name']) || !empty($search_params['last_name'])) {
             $first = !empty($search_params['first_name']) ? $search_params['first_name'] : NULL;
             $last = !empty($search_params['last_name']) ? $search_params['last_name'] : NULL;
             $middle = !empty($search_params['middle_name']) ? $search_params['middle_name'] : NULL;
@@ -144,31 +148,31 @@ class PiplApi_SearchAPIRequest
             $person->add_fields(array($name));
         }
 
-        if (!empty($search_params['raw_name'])){
+        if (!empty($search_params['raw_name'])) {
             $person->add_fields(array(new PiplApi_Name(array('raw' => $search_params['raw_name']))));
         }
 
-        if (!empty($search_params['email'])){
+        if (!empty($search_params['email'])) {
             $person->add_fields(array(new PiplApi_Email(array('address' => $search_params['email']))));
         }
 
-        if (!empty($search_params['phone'])){
+        if (!empty($search_params['phone'])) {
             $person->add_fields(array(PiplApi_Phone::from_text($search_params['phone'])));
         }
 
-        if (!empty($search_params['username'])){
+        if (!empty($search_params['username'])) {
             $person->add_fields(array(new PiplApi_Username(array('content' => $search_params['username']))));
         }
 
-        if (!empty($search_params['user_id'])){
+        if (!empty($search_params['user_id'])) {
             $person->add_fields(array(new PiplApi_UserID(array('content' => $search_params['user_id']))));
         }
 
-        if (!empty($search_params['url'])){
+        if (!empty($search_params['url'])) {
             $person->add_fields(array(new PiplApi_URL(array('url' => $search_params['url']))));
         }
 
-        if (!empty($search_params['country']) || !empty($search_params['state']) || !empty($search_params['city'])){
+        if (!empty($search_params['country']) || !empty($search_params['state']) || !empty($search_params['city'])) {
             $country = !empty($search_params['country']) ? $search_params['country'] : NULL;
             $state = !empty($search_params['state']) ? $search_params['state'] : NULL;
             $city = !empty($search_params['city']) ? $search_params['city'] : NULL;
@@ -176,24 +180,25 @@ class PiplApi_SearchAPIRequest
             $person->add_fields(array($address));
         }
 
-        if (!empty($search_params['raw_address'])){
+        if (!empty($search_params['raw_address'])) {
             $person->add_fields(array(new PiplApi_Address(array('raw' => $search_params['raw_address']))));
         }
 
-        if (!empty($search_params['from_age']) || !empty($search_params['to_age'])){
+        if (!empty($search_params['from_age']) || !empty($search_params['to_age'])) {
             $dob = PiplApi_DOB::from_age_range(!empty($search_params['from_age']) ? $search_params['from_age'] : 0,
                 !empty($search_params['to_age']) ? $search_params['to_age'] : 1000);
             $person->add_fields(array($dob));
         }
 
-        if (!empty($search_params['search_pointer'])){
+        if (!empty($search_params['search_pointer'])) {
             $person->search_pointer = $search_params['search_pointer'];
         }
 
         $this->person = $person;
         $this->configuration = $configuration;
     }
-    public function validate_query_params($strict=true)
+
+    public function validate_query_params($strict = true)
     {
         // Check if the request is valid and can be sent, raise InvalidArgumentException if
         // not.
@@ -203,52 +208,56 @@ class PiplApi_SearchAPIRequest
         // an exception is raised only when the search request cannot be performed
         // because required query params are missing.
 
-        if (empty($this->get_effective_configuration()->api_key)){
+        if (empty($this->get_effective_configuration()->api_key)) {
             throw new InvalidArgumentException('API key is missing');
         }
 
-        if($strict && (isset($this->get_effective_configuration()->show_sources) &&
-                !in_array($this->get_effective_configuration()->show_sources, array("all", "matching", "true")))){
+        if ($strict && (isset($this->get_effective_configuration()->show_sources) &&
+                !in_array($this->get_effective_configuration()->show_sources, array("all", "matching", "true")))
+        ) {
             throw new InvalidArgumentException('show_sources has a wrong value, should be "matching", "all" or "true"');
         }
 
-        if($strict && isset($this->get_effective_configuration()->minimum_probability) &&
+        if ($strict && isset($this->get_effective_configuration()->minimum_probability) &&
             (!(is_float($this->get_effective_configuration()->minimum_probability) ||
                 (0. < $this->get_effective_configuration()->minimum_probability ||
-                    $this->get_effective_configuration()->minimum_probability > 1)))) {
+                    $this->get_effective_configuration()->minimum_probability > 1)))
+        ) {
             throw new InvalidArgumentException('minimum_probability should be a float between 0 and 1');
         }
 
-        if($strict && isset($this->get_effective_configuration()->minimum_match) &&
+        if ($strict && isset($this->get_effective_configuration()->minimum_match) &&
             (!(is_float($this->get_effective_configuration()->minimum_match) ||
                 (0. < $this->get_effective_configuration()->minimum_match ||
-                    $this->get_effective_configuration()->minimum_match> 1)))) {
+                    $this->get_effective_configuration()->minimum_match > 1)))
+        ) {
             throw new InvalidArgumentException('minimum_match should be a float between 0 and 1');
         }
 
         if ($strict && isset($this->get_effective_configuration()->infer_persons) &&
             (!(is_bool($this->get_effective_configuration()->infer_persons) ||
-             is_null($this->get_effective_configuration()->infer_persons)))) {
+                is_null($this->get_effective_configuration()->infer_persons)))
+        ) {
             throw new InvalidArgumentException('infer_persons must be true, false or null');
         }
 
-        if ($strict && $unsearchable = $this->person->unsearchable_fields())
-        {
+        if ($strict && $unsearchable = $this->person->unsearchable_fields()) {
             $display_strings = array_map(create_function('$field', 'return $field->get_representation();'), $unsearchable);
             throw new InvalidArgumentException(sprintf('Some fields are unsearchable: %s', implode(', ', $display_strings)));
         }
 
-        if (!$this->person->is_searchable())
-        {
+        if (!$this->person->is_searchable()) {
             throw new InvalidArgumentException('No valid name/username/phone/email/address/user_id/url in request');
         }
     }
+
     public function url()
     {
         // The URL of the request (string).
         return $this->get_base_url() . http_build_query($this->get_query_params());
     }
-    public function send($strict_validation=true)
+
+    public function send($strict_validation = true)
     {
         // Send the request and return the response or raise PiplApi_SearchAPIError.
         //
@@ -292,67 +301,75 @@ class PiplApi_SearchAPIRequest
         #https://github.com/zendframework/zend-http/issues/24
         #https://github.com/kriswallsmith/Buzz/issues/181
         list($header_raw, $body) = explode("\r\n\r\n", $resp, 2);
+        $headers = $this->extract_headers_from_curl($header_raw);
 
         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         if (in_array($http_status, range(200, 299))) {
             // Trying to parse header_raw from curl request
-            $headers = $this->extract_headers_from_curl($header_raw);
             $res = PiplApi_SearchAPIResponse::from_array(json_decode($body, true), $headers);
-
             // save the raw json to response object
             $res->raw_json = $body;
             return $res;
         } elseif ($resp) {
-            $err = PiplApi_SearchAPIError::from_array(json_decode($body, true));
+            $err = PiplApi_SearchAPIError::from_array(json_decode($body, true), $headers);
             throw $err;
         } else {
-            $err = new PiplApi_SearchAPIError(curl_error($curl), null, $http_status);
+            $err = PiplApi_SearchAPIError::from_array(
+                array("error" => curl_error($curl),
+                    "warnings" => null,
+                    "@http_status_code" => $http_status),
+                $headers);
             throw $err;
         }
     }
 
-    private function get_effective_configuration(){
-        if(is_null($this->configuration)){
+    private function get_effective_configuration()
+    {
+        if (is_null($this->configuration)) {
             return self::get_default_configuration();
         }
         return $this->configuration;
     }
-    private function get_query_params(){
+
+    private function get_query_params()
+    {
 
         $query = array('key' => $this->get_effective_configuration()->api_key);
-        if($this->person->search_pointer) {
+        if ($this->person->search_pointer) {
             $query['search_pointer'] = $this->person->search_pointer;
-        } elseif($this->person) {
+        } elseif ($this->person) {
             $query['person'] = json_encode($this->person->to_array());
         }
-        if($this->get_effective_configuration()->show_sources) {
+        if ($this->get_effective_configuration()->show_sources) {
             $query['show_sources'] = $this->get_effective_configuration()->show_sources;
         }
-        if(isset($this->get_effective_configuration()->live_feeds)){
+        if (isset($this->get_effective_configuration()->live_feeds)) {
             $query['live_feeds'] = $this->get_effective_configuration()->live_feeds;
         }
-        if(isset($this->get_effective_configuration()->hide_sponsored)) {
+        if (isset($this->get_effective_configuration()->hide_sponsored)) {
             $query['hide_sponsored'] = $this->get_effective_configuration()->hide_sponsored;
         }
-        if($this->get_effective_configuration()->minimum_probability) {
+        if ($this->get_effective_configuration()->minimum_probability) {
             $query['minimum_probability'] = $this->get_effective_configuration()->minimum_probability;
         }
-        if($this->get_effective_configuration()->minimum_match) {
+        if ($this->get_effective_configuration()->minimum_match) {
             $query['minimum_match'] = $this->get_effective_configuration()->minimum_match;
         }
-        if($this->get_effective_configuration()->match_requirements) {
+        if ($this->get_effective_configuration()->match_requirements) {
             $query['match_requirements'] = $this->get_effective_configuration()->match_requirements;
         }
-        if($this->get_effective_configuration()->source_category_requirements) {
+        if ($this->get_effective_configuration()->source_category_requirements) {
             $query['source_category_requirements'] = $this->get_effective_configuration()->source_category_requirements;
         }
-        if($this->get_effective_configuration()->infer_persons) {
+        if ($this->get_effective_configuration()->infer_persons) {
             $query['infer_persons'] = $this->get_effective_configuration()->infer_persons;
         }
 
         return $query;
     }
-    private function get_base_url(){
+
+    private function get_base_url()
+    {
         $prefix = $this->get_effective_configuration()->use_https ? "https://" : "http://";
         return $prefix . self::$base_url;
     }
@@ -372,7 +389,9 @@ class PiplApi_SearchAPIRequest
         return $headers;
     }
 }
-class PiplApi_SearchAPIResponse implements JsonSerializable {
+
+class PiplApi_SearchAPIResponse implements JsonSerializable
+{
 
     //    A response comprises the three things returned as a result to your query:
     //
@@ -482,6 +501,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         // raw json
         $this->raw_json = NULL;
     }
+
     public function group_sources($key_function)
     {
         // Return an array with the sources grouped by the key returned by
@@ -493,13 +513,13 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         // The return value is an array, a key in this array is a key returned by
         // `key_function` and the value is a list of all the sources with this key.
         $new_groups = array();
-        foreach ($this->sources as $rec)
-        {
+        foreach ($this->sources as $rec) {
             $grp = $key_function($rec);
             $new_groups[$grp][] = $rec;
         }
         return $new_groups;
     }
+
     public function group_sources_by_domain()
     {
         // Return the sources grouped by the domain they came from.
@@ -510,6 +530,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         $key_function = create_function('$x', 'return $x->domain;');
         return $this->group_sources($key_function);
     }
+
     public function group_sources_by_category()
     {
         // Return the sources grouped by their category.
@@ -520,6 +541,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         $key_function = create_function('$x', 'return $x->category;');
         return $this->group_sources($key_function);
     }
+
     public function group_sources_by_match()
     {
         // Return the sources grouped by their query_person_match attribute.
@@ -531,84 +553,84 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         $key_function = create_function('$x', 'return $x->match;');
         return $this->group_sources($key_function);
     }
+
     public function to_array()
     {
         // Return a dict representation of the response.
         $d = array();
 
-        if (!empty($this->http_status_code)){
+        if (!empty($this->http_status_code)) {
             $d['@http_status_code'] = $this->http_status_code;
         }
-        if (!empty($this->visible_sources)){
+        if (!empty($this->visible_sources)) {
             $d['@visible_sources'] = $this->visible_sources;
         }
-        if (!empty($this->available_sources)){
+        if (!empty($this->available_sources)) {
             $d['@available_sources'] = $this->available_sources;
         }
-        if (!empty($this->search_id)){
+        if (!empty($this->search_id)) {
             $d['@search_id'] = $this->search_id;
         }
-        if (!empty($this->persons_count)){
-            $d['@persons_count']  = $this->persons_count;
+        if (!empty($this->persons_count)) {
+            $d['@persons_count'] = $this->persons_count;
         }
 
-        if (!empty($this->warnings)){
+        if (!empty($this->warnings)) {
             $d['warnings'] = $this->warnings;
         }
-        if (!empty($this->query)){
+        if (!empty($this->query)) {
             $d['query'] = $this->query->to_array();
         }
-        if (!empty($this->person)){
+        if (!empty($this->person)) {
             $d['person'] = $this->person->to_array();
         }
-        if (!empty($this->possible_persons)){
-            $d['possible_persons']  = array();
-            foreach($this->possible_persons as $possible_person){
+        if (!empty($this->possible_persons)) {
+            $d['possible_persons'] = array();
+            foreach ($this->possible_persons as $possible_person) {
                 $d['possible_persons'][] = $possible_person->to_array();
             }
         }
-        if (!empty($this->sources)){
-            $d['sources']  = array();
-            foreach($this->sources as $source){
+        if (!empty($this->sources)) {
+            $d['sources'] = array();
+            foreach ($this->sources as $source) {
                 $d['sources'][] = $source->to_array();
             }
         }
 
-        if (!empty($this->available_data)){
-            $d['available_data']  = $this->available_data->to_array();
+        if (!empty($this->available_data)) {
+            $d['available_data'] = $this->available_data->to_array();
         }
 
-        if (!empty($this->match_requirements)){
-            $d['match_requirements']  = $this->match_requirements;
+        if (!empty($this->match_requirements)) {
+            $d['match_requirements'] = $this->match_requirements;
         }
 
         return $d;
     }
-    public static function from_array($d, $headers=array())
+
+    public static function from_array($d, $headers = array())
     {
         // Transform the array to a response object and return the response.
         $warnings = !empty($d['warnings']) ? $d['warnings'] : array();
         $query = NULL;
-        if (!empty($d['query']))
-        {
+        if (!empty($d['query'])) {
             $query = PiplApi_Person::from_array($d['query']);
         }
         $person = NULL;
-        if (!empty($d['person']))
-        {
+        if (!empty($d['person'])) {
             $person = PiplApi_Person::from_array($d['person']);
         }
 
-        $sources  = array();
-        if(array_key_exists("sources", $d) && count($d['sources']) > 0){
-            foreach($d["sources"] as $source){
+        $sources = array();
+        if (array_key_exists("sources", $d) && count($d['sources']) > 0) {
+            foreach ($d["sources"] as $source) {
                 $sources[] = PiplApi_Source::from_array($source);
             }
         }
 
         $possible_persons = array();
-        if(array_key_exists("possible_persons", $d) && count($d['possible_persons']) > 0){
-            foreach($d["possible_persons"] as $possible_person){
+        if (array_key_exists("possible_persons", $d) && count($d['possible_persons']) > 0) {
+            foreach ($d["possible_persons"] as $possible_person) {
                 $possible_persons[] = PiplApi_Person::from_array($possible_person);
             }
         }
@@ -625,17 +647,17 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
         // API V5 - New attributes
 
         $available_data = NULL;
-        if(!empty($d['available_data'])){
+        if (!empty($d['available_data'])) {
             $available_data = PiplApi_AvailableData::from_array($d['available_data']);
         }
 
         $match_requirements = NULL;
-        if(!empty($d['match_requirements'])){
+        if (!empty($d['match_requirements'])) {
             $match_requirements = $d['match_requirements'];
         }
 
         $source_category_requirements = NULL;
-        if(!empty($d['source_category_requirements'])){
+        if (!empty($d['source_category_requirements'])) {
             $source_category_requirements = $d['source_category_requirements'];
         }
 
@@ -652,52 +674,83 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
 
     }
 
-    public function name(){
+    public function name()
+    {
         return ($this->person && count($this->person->names) > 0) ? $this->person->names[0] : NULL;
     }
-    public function address(){
+
+    public function address()
+    {
         return ($this->person && count($this->person->addresses) > 0) ? $this->person->addresses[0] : NULL;
     }
-    public function phone(){
+
+    public function phone()
+    {
         return ($this->person && count($this->person->phones) > 0) ? $this->person->phones[0] : NULL;
     }
-    public function email(){
+
+    public function email()
+    {
         return ($this->person && count($this->person->emails) > 0) ? $this->person->emails[0] : NULL;
     }
-    public function username(){
+
+    public function username()
+    {
         return ($this->person && count($this->person->usernames) > 0) ? $this->person->usernames[0] : NULL;
     }
-    public function user_id(){
+
+    public function user_id()
+    {
         return ($this->person && count($this->person->user_ids) > 0) ? $this->person->user_ids[0] : NULL;
     }
-    public function dob(){
+
+    public function dob()
+    {
         return ($this->person && $this->person->dob) ? $this->person->dob : NULL;
     }
-    public function image(){
+
+    public function image()
+    {
         return ($this->person && count($this->person->images) > 0) ? $this->person->images[0] : NULL;
     }
-    public function job(){
+
+    public function job()
+    {
         return ($this->person && count($this->person->jobs) > 0) ? $this->person->jobs[0] : NULL;
     }
-    public function education(){
+
+    public function education()
+    {
         return ($this->person && count($this->person->educations) > 0) ? $this->person->educations[0] : NULL;
     }
-    public function gender(){
+
+    public function gender()
+    {
         return ($this->person && $this->person->gender) ? $this->person->gender : NULL;
     }
-    public function ethnicity(){
+
+    public function ethnicity()
+    {
         return ($this->person && count($this->person->ethnicities) > 0) ? $this->person->ethnicities[0] : NULL;
     }
-    public function language(){
+
+    public function language()
+    {
         return ($this->person && count($this->person->languages) > 0) ? $this->person->languages[0] : NULL;
     }
-    public function origin_country(){
+
+    public function origin_country()
+    {
         return ($this->person && count($this->person->origin_countries) > 0) ? $this->person->origin_countries[0] : NULL;
     }
-    public function relationship(){
+
+    public function relationship()
+    {
         return ($this->person && count($this->person->relationships) > 0) ? $this->person->relationships[0] : NULL;
     }
-    public function url(){
+
+    public function url()
+    {
         return ($this->person && count($this->person->urls) > 0) ? $this->person->urls[0] : NULL;
     }
 
@@ -714,7 +767,8 @@ class PiplApi_SearchAPIResponse implements JsonSerializable {
     }
 }
 
-class PiplApi_SearchAPIError extends PiplApi_APIError {
+class PiplApi_SearchAPIError extends PiplApi_APIError
+{
     // An exception raised when the response from the search API contains an
     // error.
 }
