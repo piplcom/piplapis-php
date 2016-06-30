@@ -11,8 +11,8 @@ require 'search.php';
 class APITester extends PHPUnit_Framework_TestCase {
 
     public function setUp(){
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API");
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "4?developer_class=premium";
+        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("KEY_PREMIUM_V4");
+        PiplApi_SearchAPIRequest::$base_url = getenv("PIPL_API_ENDPOINT");
     }
 
     private function get_broad_search(){
@@ -150,12 +150,11 @@ class APITester extends PHPUnit_Framework_TestCase {
 
     public function test_contact_datatypes_are_as_expected()
     {
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API");
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=contact";
+        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("KEY_CONTACT_V5");
         $res = $this->get_narrow_search()->send();
         $fields = $res->person->all_fields();
         $allowed_types = array('PiplApi_Name', 'PiplApi_Language', 'PiplApi_OriginCountry',
-            'PiplApi_DOB', 'PiplApi_Gender', 'PiplApi_Address', 'PiplApi_Phone'
+            'PiplApi_DOB', 'PiplApi_Gender', 'PiplApi_Address', 'PiplApi_Phone', 'PiplApi_URL'
         );
         foreach ($fields as $field) {
             if ($field instanceof PiplApi_Email) {
@@ -168,8 +167,7 @@ class APITester extends PHPUnit_Framework_TestCase {
 
     public function test_social_datatypes_are_as_expected()
     {
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=social";
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API");
+        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("KEY_SOCIAL_V5");
         $res = $this->get_narrow_search()->send();
         $fields = $res->person->all_fields();
         $allowed_types = array(
@@ -200,8 +198,8 @@ class APITester extends PHPUnit_Framework_TestCase {
 
     public function test_forward_compatibility()
     {
-        PiplApi_SearchAPIRequest::$base_url .= "&show_unknown_fields=1";
-        $request = new PiplApi_SearchAPIRequest(array("email" => "clark.kent@example.com"));
+        PiplApi_SearchAPIRequest::$base_url .= "?show_unknown_fields=1";
+        $request = new PiplApi_SearchAPIRequest(array("email" => "brianperks@gmail.com"));
         $response = $request->send();
         $this->assertNotEmpty($response->person);
     }
@@ -566,8 +564,8 @@ class APITester extends PHPUnit_Framework_TestCase {
         $user_id = new PiplApi_URL();
         $this->assertFalse($user_id->is_searchable());
     }
-    public function test_search_by_unknown_user_id() {
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+    public function test_search_by_unknown_user_id()
+    {
         $request = new PiplApi_SearchAPIRequest(array("user_id" => "10019355@blabla"));
         $request->configuration = new PiplApi_SearchRequestConfiguration(
             PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
@@ -577,14 +575,14 @@ class APITester extends PHPUnit_Framework_TestCase {
             $response = $request->send();
         } catch (PiplApi_APIError $e) {
             $this->assertEquals($e->getMessage(),
-                'The query does not contain any valid name/username/user_id/phone/email/address to search by');
+                'The query does not contain any valid name/username/user_id/phone/email to search by');
             $throw = true;
         }
         $this->assertTrue($throw);
     }
 
-    public function test_search_by_unknown_url() {
-        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
+    public function test_search_by_unknown_url()
+    {
         $request = new PiplApi_SearchAPIRequest(array("url" => "http://asd.com"));
         $request->configuration = new PiplApi_SearchRequestConfiguration(
             PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
@@ -594,7 +592,7 @@ class APITester extends PHPUnit_Framework_TestCase {
             $response = $request->send();
         } catch (PiplApi_APIError $e) {
             $this->assertEquals($e->getMessage(),
-                'The query does not contain any valid name/username/user_id/phone/email/address to search by');
+                'The query does not contain any valid name/username/user_id/phone/email to search by');
             $throw = true;
         }
         $this->assertTrue($throw);
