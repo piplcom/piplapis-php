@@ -1067,7 +1067,7 @@ class PiplApi_Language extends PiplApi_Field
         }
         if (!empty($region))
         {
-            $this->$region = $region;
+            $this->region = $region;
         }
     }
 }
