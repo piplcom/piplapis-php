@@ -464,12 +464,12 @@ class PiplApi_FieldCount
     protected $attributes = array(
         'addresses', 'ethnicities', 'emails', 'dobs', 'genders', 'user_ids', 'social_profiles',
         'educations', 'jobs', 'images', 'languages', 'origin_countries', 'names', 'phones',
-        'relationships', 'usernames'
+        'relationships', 'usernames', 'mobile_phones', 'landline_phones'
     );
     function __construct($dobs = NULL, $images = NULL, $educations = NULL, $addresses = NULL, $jobs = NULL,
                          $genders = NULL, $ethnicities = NULL, $phones = NULL, $origin_countries = NULL,
                          $usernames = NULL, $languages = NULL, $emails = NULL, $user_ids = NULL, $relationships = NULL,
-                         $names = NULL, $social_profiles = NULL)
+                         $names = NULL, $social_profiles = NULL, $mobile_phones = NULL, $landline_phones = NULL)
     {
         $this->dobs = $dobs;
         $this->images = $images;
@@ -487,34 +487,42 @@ class PiplApi_FieldCount
         $this->relationships = $relationships;
         $this->names = $names;
         $this->social_profiles = $social_profiles;
+        $this->mobile_phones = $mobile_phones;
+        $this->landline_phones = $landline_phones;
     }
-    public static function from_array($params) {
+
+    public static function from_array($params)
+    {
         $dobs = !empty($params['dobs']) ? $params['dobs'] : NULL;
-        $images =!empty($params['images']) ? $params['images'] : NULL;
-        $educations =!empty($params['educations']) ? $params['educations'] : NULL;
-        $addresses =!empty($params['addresses']) ? $params['addresses'] : NULL;
-        $jobs =!empty($params['jobs']) ? $params['jobs'] : NULL;
-        $genders =!empty($params['genders']) ? $params['genders'] : NULL;
-        $ethnicities =!empty($params['ethnicities']) ? $params['ethnicities'] : NULL;
-        $phones =!empty($params['phones']) ? $params['phones'] : NULL;
-        $origin_countries =!empty($params['origin_countries']) ? $params['origin_countries'] : NULL;
-        $usernames =!empty($params['usernames']) ? $params['usernames'] : NULL;
-        $languages =!empty($params['languages']) ? $params['languages'] : NULL;
-        $emails =!empty($params['emails']) ? $params['emails'] : NULL;
-        $user_ids =!empty($params['user_ids']) ? $params['user_ids'] : NULL;
-        $relationships =!empty($params['relationships']) ? $params['relationships'] : NULL;
-        $names =!empty($params['names']) ? $params['names'] : NULL;
-        $social_profiles =!empty($params['social_profiles']) ? $params['social_profiles'] : NULL;
+        $images = !empty($params['images']) ? $params['images'] : NULL;
+        $educations = !empty($params['educations']) ? $params['educations'] : NULL;
+        $addresses = !empty($params['addresses']) ? $params['addresses'] : NULL;
+        $jobs = !empty($params['jobs']) ? $params['jobs'] : NULL;
+        $genders = !empty($params['genders']) ? $params['genders'] : NULL;
+        $ethnicities = !empty($params['ethnicities']) ? $params['ethnicities'] : NULL;
+        $phones = !empty($params['phones']) ? $params['phones'] : NULL;
+        $origin_countries = !empty($params['origin_countries']) ? $params['origin_countries'] : NULL;
+        $usernames = !empty($params['usernames']) ? $params['usernames'] : NULL;
+        $languages = !empty($params['languages']) ? $params['languages'] : NULL;
+        $emails = !empty($params['emails']) ? $params['emails'] : NULL;
+        $user_ids = !empty($params['user_ids']) ? $params['user_ids'] : NULL;
+        $relationships = !empty($params['relationships']) ? $params['relationships'] : NULL;
+        $names = !empty($params['names']) ? $params['names'] : NULL;
+        $social_profiles = !empty($params['social_profiles']) ? $params['social_profiles'] : NULL;
+        $landline_phones = !empty($params['landline_phones']) ? $params['landline_phones'] : NULL;
+        $mobile_phones = !empty($params['mobile_phones']) ? $params['mobile_phones'] : NULL;
 
         $instance = new self($dobs, $images, $educations, $addresses, $jobs,
             $genders, $ethnicities, $phones, $origin_countries,
             $usernames, $languages, $emails, $user_ids, $relationships,
-            $names, $social_profiles);
+            $names, $social_profiles, $landline_phones, $mobile_phones);
         return $instance;
     }
-    public function to_array() {
+
+    public function to_array()
+    {
         $res = array();
-        foreach($this->attributes as $attr) {
+        foreach ($this->attributes as $attr) {
             if ($this->$attr > 0)
                 $res[$attr] = $this->$attr;
         }
