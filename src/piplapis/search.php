@@ -451,7 +451,9 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
                                 $person, $possible_persons, $sources, $available_data = NULL,
                                 $match_requirements = NULL, $source_category_requirements = NULL, $persons_count = NULL,
                                 $qps_allotted = NULL, $qps_current = NULL, $quota_allotted = NULL, $quota_current = NULL,
-                                $quota_reset = NULL)
+                                $quota_reset = NULL, $qps_live_allotted = NULL, $qps_live_current = NULL,
+                                $qps_demo_allotted = NULL, $qps_demo_current = NULL, $demo_usage_allotted = NULL,
+                                $demo_usage_current = NULL, $demo_usage_expiry = NULL)
     {
         // Args:
         //  http_status_code -- The resposne code. 2xx if successful.
@@ -491,12 +493,26 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
         // quota_allotted- int | Your quota limit.
         // quota_current- int | Your used quota.
         // quota_reset- DateTime Object | The time (in UTC) that your quota will be reset.
+        // qps_live_allotted - Your permitted queries per second
+        // qps_live_current - The number of queries that you've run in the same second as this one.
+        // qps_demo_allotted - Your permitted queries per second
+        // qps_demo_current - The number of queries that you've run in the same second as this one.
+        // demo_usage_allotted - Your permitted demo queries
+        // demo_usage_current - The number of demo queries that you've already run
+        // demo_usage_expiry -  The expiry time of your demo usage
 
         $this->qps_allotted = $qps_allotted;
         $this->qps_current = $qps_current;
+        $this->qps_live_allotted = $qps_live_allotted;
+        $this->qps_live_current = $qps_live_current;
+        $this->qps_demo_allotted = $qps_demo_allotted;
+        $this->qps_demo_current = $qps_demo_current;
         $this->quota_allotted = $quota_allotted;
         $this->quota_current = $quota_current;
         $this->quota_reset = $quota_reset;
+        $this->demo_usage_allotted = $demo_usage_allotted;
+        $this->demo_usage_current = $demo_usage_current;
+        $this->demo_usage_expiry = $demo_usage_expiry;
 
         // raw json
         $this->raw_json = NULL;
