@@ -87,8 +87,7 @@ class PiplApi_APIError extends Exception
 
         return new self($error, $warnings, $http_status_code, $qps_allotted, $qps_current,
                         $quota_allotted, $quota_current, $quota_reset, $qps_live_allotted, $qps_live_current,
-                        $qps_demo_allotted, $qps_demo_current, $demo_usage_allotted, $demo_usage_allotted,
-                        $demo_usage_current, $demo_usage_expiry);
+                        $qps_demo_allotted, $qps_demo_current, $demo_usage_allotted,  $demo_usage_current, $demo_usage_expiry);
     }
 
     public function to_array()
