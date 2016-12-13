@@ -653,12 +653,21 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
 
         // Handle headers
 
-        $qps_allotted = !empty($headers['x-apikey-qps-allotted']) ? intval($headers['x-apikey-qps-allotted']) : null;
-        $qps_current = !empty($headers['x-apikey-qps-current']) ? intval($headers['x-apikey-qps-current']) : null;
+        $qps_allotted = !empty($headers['x-qps-allotted']) ? intval($headers['x-qps-allotted']) : null;
+        $qps_current = !empty($headers['x-qps-current']) ? intval($headers['x-qps-current']) : null;
         $quota_allotted = !empty($headers['x-apikey-quota-allotted']) ? intval($headers['x-apikey-quota-allotted']) : null;
         $quota_current = !empty($headers['x-apikey-quota-current']) ? intval($headers['x-apikey-quota-current']) : null;
         $quota_reset = !empty($headers['x-quota-reset']) ?
             DateTime::createFromFormat(PiplApi_Utils::PIPLAPI_DATE_QUOTA_RESET, $headers['x-quota-reset']) : null;
+        $qps_live_allotted = !empty($headers['x-qps-live-allotted']) ? intval($headers['x-qps-live-allotted']) : null;
+        $qps_live_current = !empty($headers['x-qps-live-current']) ? intval($headers['x-qps-live-current']) : null;
+        $qps_demo_allotted = !empty($headers['x-qps-demo-allotted']) ? intval($headers['x-qps-demo-allotted']) : null;
+        $qps_demo_current = !empty($headers['x-qps-demo-current']) ? intval($headers['x-qps-demo-current']) : null;
+        $demo_usage_allotted = !empty($headers['x-demo-usage-allotted']) ? intval($headers['x-demo-usage-allotted']) : null;
+        $demo_usage_current = !empty($headers['x-demo-usage-current']) ? intval($headers['x-demo-usage-current']) : null;
+        $demo_usage_expiry = !empty($headers['x-demo-usage-expiry']) ?
+            DateTime::createFromFormat(PiplApi_Utils::PIPLAPI_DATE_QUOTA_RESET, $headers['x-demo-usage-expiry']) : null;
+
 
         // API V5 - New attributes
 
@@ -685,7 +694,9 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
         $response = new PiplApi_SearchAPIResponse($d["@http_status_code"], $query, $d["@visible_sources"],
             $d["@available_sources"], $d["@search_id"], $warnings, $person, $possible_persons, $sources,
             $available_data, $match_requirements, $source_category_requirements, $persons_count,
-            $qps_allotted, $qps_current, $quota_allotted, $quota_current, $quota_reset);
+            $qps_allotted, $qps_current, $quota_allotted, $quota_current, $quota_reset, $qps_live_allotted,
+            $qps_live_current ,$qps_demo_allotted, $qps_demo_current, $demo_usage_allotted,
+            $demo_usage_current, $demo_usage_expiry);
         return $response;
 
     }
