@@ -515,7 +515,7 @@ class PiplApi_FieldCount
         $instance = new self($dobs, $images, $educations, $addresses, $jobs,
             $genders, $ethnicities, $phones, $origin_countries,
             $usernames, $languages, $emails, $user_ids, $relationships,
-            $names, $social_profiles, $landline_phones, $mobile_phones);
+            $names, $social_profiles, $mobile_phones, $landline_phones);
         return $instance;
     }
 
