@@ -29,7 +29,7 @@ class PiplApi_SearchRequestConfiguration
     public $source_category_requirements = NULL;
     public $infer_persons = NULL;
 
-    function __construct($api_key = "sample_key", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
+    function __construct($api_key = "YOUR_KEY", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
                          $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false, $match_requirements = NULL,
                          $source_category_requirements = NULL, $infer_persons = NULL)
     {
@@ -272,8 +272,8 @@ class PiplApi_SearchAPIRequest
         // Example:
         //
         // require_once dirname(__FILE__) . '/search.php';
-        // $request = new PiplApi_SearchAPIRequest(array('api_key' => 'sample_key',
-        //                                                                  'email' => 'clark.kent@example.com'));
+        // $request = new PiplApi_SearchAPIRequest(array('api_key' => 'YOUR_KEY',
+        //                                                                 'email' => 'clark.kent@example.com'));
         // try {
         //      $response = $request->send();
         //      // All good!
@@ -695,7 +695,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
             $d["@available_sources"], $d["@search_id"], $warnings, $person, $possible_persons, $sources,
             $available_data, $match_requirements, $source_category_requirements, $persons_count,
             $qps_allotted, $qps_current, $quota_allotted, $quota_current, $quota_reset, $qps_live_allotted,
-            $qps_live_current ,$qps_demo_allotted, $qps_demo_current, $demo_usage_allotted,
+            $qps_live_current, $qps_demo_allotted, $qps_demo_current, $demo_usage_allotted,
             $demo_usage_current, $demo_usage_expiry);
         return $response;
 
