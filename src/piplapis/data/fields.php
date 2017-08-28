@@ -655,7 +655,7 @@ class PiplApi_Username extends PiplApi_Field
         $st = !empty($this->content) ? $this->content : '';
         $clean = PiplApi_Utils::piplapi_alnum_chars($st);
         $func = function_exists("mb_strlen") ? "mb_strlen" : "strlen";
-        return ($func($clean) >= 4);
+        return ($func($clean) >= 3);
     }
 
     public function __toString(){
