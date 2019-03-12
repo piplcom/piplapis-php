@@ -28,10 +28,11 @@ class PiplApi_SearchRequestConfiguration
     public $match_requirements = NULL;
     public $source_category_requirements = NULL;
     public $infer_persons = NULL;
+    public $log_query = NULL;
 
     function __construct($api_key = "YOUR_KEY", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
                          $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false, $match_requirements = NULL,
-                         $source_category_requirements = NULL, $infer_persons = NULL)
+                         $source_category_requirements = NULL, $infer_persons = NULL, $log_query = true)
     {
         $this->api_key = $api_key;
         $this->minimum_probability = $minimum_probability;
@@ -43,6 +44,7 @@ class PiplApi_SearchRequestConfiguration
         $this->match_requirements = $match_requirements;
         $this->source_category_requirements = $source_category_requirements;
         $this->infer_persons = $infer_persons;
+        $this->log_query = $log_query;
     }
 
 }
@@ -251,6 +253,10 @@ class PiplApi_SearchAPIRequest
         if (!$this->person->is_searchable()) {
             throw new InvalidArgumentException('No valid name/username/phone/email/address/user_id/url in request');
         }
+
+        if ($strict && !is_bool($this->get_effective_configuration()->log_query)) {
+            throw new InvalidArgumentException('loq_query must be true or false');
+        }
     }
 
     public function url()
@@ -337,6 +343,9 @@ class PiplApi_SearchAPIRequest
     {
 
         $query = array('key' => $this->get_effective_configuration()->api_key);
+        if ($this->get_effective_configuration()->log_query === false) {
+            $query['no_log'] = 'true';
+        }
         if ($this->person->search_pointer) {
             $query['search_pointer'] = $this->person->search_pointer;
         } elseif ($this->person) {
