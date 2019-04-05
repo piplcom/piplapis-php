@@ -1,5 +1,5 @@
 {
-  "name": "rjhallsted/piplapis-php",
+  "name": "pipl/piplapis-php",
   "description": "Client library for use with the Pipl search API",
   "license": "APACHE2",
   "homepage": "https://pipl.com/dev",
