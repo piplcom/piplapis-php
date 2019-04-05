@@ -9,7 +9,7 @@ This is a PHP client library for easily integrating Pipl's APIs into your applic
 Library Requirements
 --------------------
 
-* PHP 5.2.17 and above.
+* PHP 5.3.0 and above.
 * Make sure php-curl is enabled (Windows: in the php.ini file uncomment `;extension=php_curl.dll`, Linux (Debian derivatives): `apt-get install php5-curl`).
 * Not required, but for input validation of unicode strings mb_string is recommended.
 
