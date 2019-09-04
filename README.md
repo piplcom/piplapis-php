@@ -16,24 +16,24 @@ Library Requirements
 Installation
 ------------
 
-    pip install piplapis-python
+    php composer.phar require pipl/piplapis-php
 
 Hello World
 ------------
 ```
-    <?php
+<?php
 
-    require_once './piplapis/search.php';
+require_once './piplapis/search.php';
 
-    $configuration = new PiplApi_SearchRequestConfiguration();
-    $configuration->use_https = true;
-    $configuration->api_key = 'YOURKEY';
-    
-    $request = new PiplApi_SearchAPIRequest(array('email' => 'clark.kent@example.com',
-    'first_name' => 'Clark',
-    'last_name' => 'Kent'), $configuration);
+$configuration = new PiplApi_SearchRequestConfiguration();
+$configuration->use_https = true;
+$configuration->api_key = 'YOURKEY';
 
-    ?>
+$request = new PiplApi_SearchAPIRequest(array('email' => 'clark.kent@example.com',
+'first_name' => 'Clark',
+'last_name' => 'Kent'), $configuration);
+
+?>
 ```
 
 Getting Started & Code Snippets
