@@ -242,7 +242,9 @@ class PiplApi_SearchAPIRequest
         }
 
         if ($strict && $unsearchable = $this->person->unsearchable_fields()) {
-            $display_strings = array_map(create_function('$field', 'return $field->get_representation();'), $unsearchable);
+            $display_strings = array_map(function($field) {
+                return $field->get_representation();
+            }, $unsearchable);
             throw new InvalidArgumentException(sprintf('Some fields are unsearchable: %s', implode(', ', $display_strings)));
         }
 
@@ -543,7 +545,9 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
         // The return value is an array, a key in this array is a domain
         // and the value is a list of all the sources with this domain.
 
-        $key_function = create_function('$x', 'return $x->domain;');
+        $key_function = function($x) {
+            return $x->domain;
+        };
         return $this->group_sources($key_function);
     }
 
@@ -554,7 +558,9 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
         // The return value is an array, a key in this array is a category
         // and the value is a list of all the sources with this category.
 
-        $key_function = create_function('$x', 'return $x->category;');
+        $key_function = function($x) {
+            return $x->category;
+        };
         return $this->group_sources($key_function);
     }
 
@@ -566,7 +572,9 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
         // float and the value is a list of all the sources with this
         // query_person_match value.
 
-        $key_function = create_function('$x', 'return $x->match;');
+        $key_function = function($x) {
+            return $x->match;
+        };
         return $this->group_sources($key_function);
     }
 
