@@ -2,7 +2,7 @@
   "name": "pipl/piplapis-php",
   "description": "Client library for use with the Pipl search API",
   "license": "APACHE2",
-  "homepage": "https://pipl.com/dev",
+  "homepage": "https://pipl.com/api/",
   "require": {
     "php": ">=5.2.17",
     "ext-curl": "*"

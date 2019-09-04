@@ -21,7 +21,6 @@ class PiplApi_APIError extends Exception
         $this->warnings = $warnings;
         $this->http_status_code = $http_status_code;
 
-        // Header Parsed Parameters http://pipl.com/dev/reference/#errors
         // qps_allotted- int | The number of queries you are allowed to do per second.
         // qps_current- int | The number of queries you have run this second.
         // quota_allotted- int | Your quota limit.
