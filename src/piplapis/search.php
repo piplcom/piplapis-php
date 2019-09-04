@@ -23,14 +23,14 @@ class PiplApi_SearchRequestConfiguration
     public $minimum_match = NULL;
     public $show_sources = NULL;
     public $live_feeds = NULL;
-    public $use_https = NULL;
+    public $use_https = true;
     public $hide_sponsored = NULL;
     public $match_requirements = NULL;
     public $source_category_requirements = NULL;
     public $infer_persons = NULL;
 
     function __construct($api_key = "YOUR_KEY", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
-                         $live_feeds = NULL, $hide_sponsored = NULL, $use_https = false, $match_requirements = NULL,
+                         $live_feeds = NULL, $hide_sponsored = NULL, $use_https = true, $match_requirements = NULL,
                          $source_category_requirements = NULL, $infer_persons = NULL)
     {
         $this->api_key = $api_key;
@@ -39,7 +39,8 @@ class PiplApi_SearchRequestConfiguration
         $this->show_sources = $show_sources;
         $this->live_feeds = $live_feeds;
         $this->hide_sponsored = $hide_sponsored;
-        $this->use_https = $use_https;
+        # We are using https only.
+        $this->use_https = true;
         $this->match_requirements = $match_requirements;
         $this->source_category_requirements = $source_category_requirements;
         $this->infer_persons = $infer_persons;
