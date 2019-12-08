@@ -28,10 +28,11 @@ class PiplApi_SearchRequestConfiguration
     public $match_requirements = NULL;
     public $source_category_requirements = NULL;
     public $infer_persons = NULL;
+    public $top_match = NULL;
 
     function __construct($api_key = "YOUR_KEY", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
                          $live_feeds = NULL, $hide_sponsored = NULL, $use_https = true, $match_requirements = NULL,
-                         $source_category_requirements = NULL, $infer_persons = NULL)
+                         $source_category_requirements = NULL, $infer_persons = NULL, $top_match = NULL)
     {
         $this->api_key = $api_key;
         $this->minimum_probability = $minimum_probability;
@@ -44,6 +45,7 @@ class PiplApi_SearchRequestConfiguration
         $this->match_requirements = $match_requirements;
         $this->source_category_requirements = $source_category_requirements;
         $this->infer_persons = $infer_persons;
+        $this->top_match = $top_match;
     }
 
 }
@@ -241,6 +243,13 @@ class PiplApi_SearchAPIRequest
         ) {
             throw new InvalidArgumentException('infer_persons must be true, false or null');
         }
+        
+        if ($strict && isset($this->get_effective_configuration()->top_match) &&
+            (!(is_bool($this->get_effective_configuration()->top_match) ||
+                is_null($this->get_effective_configuration()->top_match)))
+        ) {
+            throw new InvalidArgumentException('top_match must be true, false or null');
+        }
 
         if ($strict && $unsearchable = $this->person->unsearchable_fields()) {
             $display_strings = array_map(function($field) {
@@ -366,6 +375,9 @@ class PiplApi_SearchAPIRequest
         }
         if ($this->get_effective_configuration()->infer_persons) {
             $query['infer_persons'] = $this->get_effective_configuration()->infer_persons;
+        }
+        if ($this->get_effective_configuration()->top_match) {
+            $query['top_match'] = $this->get_effective_configuration()->top_match;
         }
 
         return $query;
