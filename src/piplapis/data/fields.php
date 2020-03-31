@@ -329,7 +329,7 @@ class PiplApi_Name extends PiplApi_Field
         $raw = PiplApi_Utils::piplapi_alpha_chars(!empty($this->raw) ? $this->raw : '');
 
         $func = function_exists("mb_strlen") ? "mb_strlen" : "strlen";
-        return ($func($first) >= 2 && $func($last) >= 2) || $func($raw) >= 4;
+        return $func($first) >= 1 || $func($last) >= 1 || $func($raw) >= 1;
     }
 }
 
