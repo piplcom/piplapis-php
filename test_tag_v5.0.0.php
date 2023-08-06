@@ -5,7 +5,7 @@ require_once './src/piplapis/search.php';
 
 try {
     PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("API_KEY");
-    PiplApi_SearchAPIRequest::$base_url = getenv("API_URL") . "?developer_class=premium";
+    PiplApi_SearchAPIRequest::$base_url = getenv("API_URL") . "?developer_class=business_premium";
 
     $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"));
     // $search = new PiplApi_SearchAPIRequest(array("email" => "brianperks@gmail.com"));
