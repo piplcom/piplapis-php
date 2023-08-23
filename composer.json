@@ -29,6 +29,11 @@
     }
   ],
   "autoload": {
-      "classmap": ["src/piplapis/", "src/piplapis/data/"]
+    "classmap": [
+      "src/piplapis/",
+      "src/piplapis/models/",
+      "src/piplapis/models/fields/",
+      "src/piplapis/models/containers/"
+    ]
   }
 }
