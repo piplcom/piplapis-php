@@ -257,7 +257,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
         $warnings = !empty($d['warnings']) ? $d['warnings'] : array();
         $query = NULL;
         if (!empty($d['query'])) {
-            $query = PiplApi_Person::from_array($d['query']);
+            $query = PiplApi_Person::from_array($d['query'], true);
         }
         $person = NULL;
         if (!empty($d['person'])) {

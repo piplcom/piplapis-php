@@ -326,6 +326,7 @@ class PiplApi_SearchAPIRequest
             $res = PiplApi_SearchAPIResponse::from_array(json_decode($body, true), $headers);
             // save the raw json to response object
             $res->raw_json = $body;
+
             return $res;
         } elseif ($resp) {
             $err = PiplApi_SearchAPIError::from_array(json_decode($body, true), $headers);

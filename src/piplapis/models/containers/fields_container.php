@@ -110,7 +110,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
         return $allfields;
     }
 
-    public function fields_from_array($d)
+    public function fields_from_array($d, $is_query=false)
     {
         // Load the fields from the dict, return an array with all the fields.
 
@@ -122,7 +122,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
                 $field_array = $d[$container];
                 foreach ($field_array as $x) {
                     $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
-                    $fields[] = call_user_func($from_array_func, $field_cls, $x);
+                    $fields[] = call_user_func($from_array_func, $field_cls, $x, $is_query);
                 }
             }
         }
@@ -131,7 +131,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
             if (array_key_exists($container, $d)) {
                 $field_array = $d[$container];
                 $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
-                $fields[] = call_user_func($from_array_func, $field_cls, $field_array);
+                $fields[] = call_user_func($from_array_func, $field_cls, $field_array, $is_query);
             }
         }
         return $fields;

@@ -102,7 +102,7 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         return $unsearchable;
     }
 
-    public static function from_array($params)
+    public static function from_array($params, $is_query=false)
     {
         // Transform the array to a person object and return it.
         $id = !empty($params['@id']) ? $params['@id'] : NULL;
@@ -111,7 +111,7 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         $inferred = !empty($params['@inferred']) ? $params['@inferred'] : false;
 
         $instance = new self(array(), $id, $search_pointer, $match, $inferred);
-        $instance->add_fields($instance->fields_from_array($params));
+        $instance->add_fields($instance->fields_from_array($params, $is_query));
         return $instance;
     }
 

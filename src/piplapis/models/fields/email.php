@@ -95,4 +95,14 @@ class PiplApi_Email extends PiplApi_Field
     public function __toString(){
         return $this->address ? $this->address : "";
     }
+
+    public static function from_array($clsname, $d, $is_query=false){
+        $instance = PiplApi_Field::from_array($clsname, $d, $is_query);
+
+        if(!$instance->email_provider && !$is_query){
+            $instance->email_provider = false;
+        }
+
+        return $instance;
+    }
 }

@@ -175,7 +175,7 @@ abstract class PiplApi_Field
         }
     }
 
-    public static function from_array($clsname, $d)
+    public static function from_array($clsname, $d, $is_query=false)
     {
         // Transform the dict to a field object and return the field.
         $newdict = array();
