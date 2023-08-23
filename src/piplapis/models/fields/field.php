@@ -38,55 +38,56 @@ abstract class PiplApi_Field
 
     }
 
-    public function __set($name, $val)
-    {
-        if (in_array($name, $this->attributes) ||
+    private function is_name_valid($name){
+        $condition = (
+            in_array($name, $this->attributes) ||
             in_array($name, $this->children) ||
             ($name == 'valid_since') ||
             ($name == 'last_seen') ||
             ($name == 'current') ||
-            ($name == 'inferred'))
-            {
-                if ($name == 'type')
-                {
-                    $this->validate_type($val);
-                }
-                $this->internal_params[$name] = $val;
-            }
+            ($name == 'inferred')
+        );
+
+        return $condition;
+    }
+
+    public function __set($name, $val)
+    {
+        if (!$this->is_name_valid($name)){
+            return;
+        }
+        
+        if ($name == 'type'){
+            $this->validate_type($val);
+        }
+
+        $this->internal_params[$name] = $val;
     }
 
     public function __get($name)
     {
-        if (in_array($name, $this->attributes) ||
-            in_array($name, $this->children) ||
-            ($name == 'valid_since') ||
-            ($name == 'inferred') ||
-            ($name == 'current') ||
-            ($name == 'last_seen'))
-            {
-                if (array_key_exists($name, $this->internal_params))
-                {
-                    return $this->internal_params[$name];
-                }
-            }
+        if (!$this->is_name_valid($name)){
+            return NULL;
+        }
+
+        if (array_key_exists($name, $this->internal_params)){
+            return $this->internal_params[$name];
+        }
+
         return NULL;
     }
 
     public function __isset($name)
     {
-        return ((in_array($name, $this->attributes) ||
-            in_array($name, $this->children) ||
-            ($name == 'valid_since') || ($name == "inferred") || ($name == 'current') || ($name == "last_seen")) &&
-            array_key_exists($name, $this->internal_params));
+        return (
+            $this->is_name_valid($name) &&
+            array_key_exists($name, $this->internal_params)
+        );
     }
 
     public function __unset($name)
     {
-        if (in_array($name, $this->attributes) ||
-            in_array($name, $this->children) ||
-            ($name == 'valid_since') || ($name == "inferred") || ($name == 'current') || ($name == "last_seen")
-        )
-        {
+        if ($this->is_name_valid($name)){
             unset($this->internal_params[$name]);
         }
     }

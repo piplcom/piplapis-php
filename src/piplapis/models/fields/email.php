@@ -8,7 +8,7 @@ class PiplApi_Email extends PiplApi_Field
     // in some cases without the address itself and just the md5 (for privacy
     // reasons).
 
-    protected $attributes = array('type', "disposable", "email_provider");
+    protected $attributes = array('type', 'disposable', 'email_provider');
     protected $children = array('address', 'address_md5');
     protected $types_set = array('personal', 'work');
     private $re_email = '/^[a-zA-Z0-9\'._%\-+]+@[a-zA-Z0-9._%\-]+\.[a-zA-Z]{2,24}$/';
@@ -36,6 +36,7 @@ class PiplApi_Email extends PiplApi_Field
         if (!empty($disposable)) {
             $this->disposable = $disposable;
         }
+
         if (!empty($email_provider))
         {
             $this->email_provider = $email_provider;

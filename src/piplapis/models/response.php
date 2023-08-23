@@ -353,6 +353,11 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
         return ($this->person && count($this->person->usernames) > 0) ? $this->person->usernames[0] : NULL;
     }
 
+    public function vehicle()
+    {
+        return ($this->person && count($this->person->vehicles) > 0) ? $this->person->vehicles[0] : NULL;
+    }
+
     public function user_id()
     {
         return ($this->person && count($this->person->user_ids) > 0) ? $this->person->user_ids[0] : NULL;

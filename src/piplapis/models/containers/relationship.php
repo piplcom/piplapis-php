@@ -12,9 +12,16 @@ class PiplApi_Relationship extends PiplApi_FieldsContainer
     public $subtype;
     public $valid_since;
     public $inferred;
+    public $last_seen;
 
-    function __construct($fields = array(), $type = NULL, $subtype = NULL, $valid_since = NULL, $inferred = NULL)
-    {
+    function __construct(
+        $fields = array(),
+        $type = NULL, 
+        $subtype = NULL, 
+        $valid_since = NULL, 
+        $inferred = NULL, 
+        $last_seen = NULL
+    ){
         parent::__construct($fields);
 
         // `fields` is an array of data fields (see fields.php)
@@ -33,6 +40,7 @@ class PiplApi_Relationship extends PiplApi_FieldsContainer
         $this->subtype = $subtype;
         $this->valid_since = $valid_since;
         $this->inferred = $inferred;
+        $this->last_seen = $last_seen;
     }
 
     public static function from_array($class_name, $params)
@@ -42,9 +50,11 @@ class PiplApi_Relationship extends PiplApi_FieldsContainer
         $subtype = !empty($params['@subtype']) ? $params['@subtype'] : NULL;
         $valid_since = !empty($params['@valid_since']) ? $params['@valid_since'] : NULL;
         $inferred = !empty($params['@inferred']) ? $params['@inferred'] : NULL;
+        $last_seen = !empty($params['@last_seen']) ? $params['@last_seen'] : NULL;
 
-        $instance = new self(array(), $type, $subtype, $valid_since, $inferred);
+        $instance = new self(array(), $type, $subtype, $valid_since, $inferred, $last_seen);
         $instance->add_fields($instance->fields_from_array($params));
+        
         return $instance;
     }
     public function __toString(){
@@ -59,6 +69,7 @@ class PiplApi_Relationship extends PiplApi_FieldsContainer
         if (!empty($this->inferred)){ $d['@inferred'] = $this->inferred; }
         if (!empty($this->type)){ $d['@type'] = $this->type; }
         if (!empty($this->subtype)){ $d['@subtype'] = $this->subtype; }
+        if (!empty($this->last_seen)){ $d['@last_seen'] = $this->last_seen; }
 
         return array_merge($d, $this->fields_to_array());
     }

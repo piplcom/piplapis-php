@@ -12,6 +12,7 @@ require_once dirname(__FILE__) . '/../fields/email.php';
 require_once dirname(__FILE__) . '/../fields/job.php';
 require_once dirname(__FILE__) . '/../fields/origin_country.php';
 require_once dirname(__FILE__) . '/../fields/username.php';
+require_once dirname(__FILE__) . '/../fields/vehicle.php';
 require_once dirname(__FILE__) . '/../fields/user_id.php';
 require_once dirname(__FILE__) . '/../fields/url.php';
 require_once dirname(__FILE__) . '/../fields/language.php';
@@ -32,6 +33,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
     public $educations = array();
     public $images = array();
     public $usernames = array();
+    public $vehicles = array();
     public $user_ids = array();
     public $urls = array();
     public $dob;
@@ -49,6 +51,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
         'PiplApi_Education' => 'educations',
         'PiplApi_Image' => 'images',
         'PiplApi_Username' => 'usernames',
+        'PiplApi_Vehicle' => 'vehicles',
         'PiplApi_UserID' => 'user_ids',
         'PiplApi_URL' => 'urls'
     );

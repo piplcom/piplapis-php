@@ -50,7 +50,10 @@ class PiplApi_SearchAPIRequest
     public $person;
     public $configuration;
 
-    public static $base_url = 'api.pipl.com/search/?';
+    public $base_url;
+    public $api_version;
+    public $default_base_url = 'api.pipl.com/search/';
+    public $default_api_version = 5;
 
     static function set_default_configuration($configuration)
     {
@@ -65,7 +68,36 @@ class PiplApi_SearchAPIRequest
         return self::$default_configuration;
     }
 
-    public function __construct($search_params = array(), $configuration = NULL)
+    private function get_effective_base_url($base_url){
+        if($base_url){
+            return $base_url;
+        }
+
+        if(getenv("PIPL_API_URL")){
+            return getenv("PIPL_API_URL");
+        }
+
+        return $this->default_base_url;
+    }
+
+    private function get_effective_api_version($api_version){
+        if($api_version){
+            return $api_version;
+        }
+
+        if(getenv("PIPL_API_VERSION")){
+            return getenv("PIPL_API_VERSION");
+        }
+
+        return $this->default_api_version;
+    }
+
+    public function __construct(
+        $search_params = array(),
+        $configuration = NULL,
+        $base_url = NULL,
+        $api_version = NULL
+    )
     {
         // Initiate a new request object with given query params.
         //
@@ -101,6 +133,9 @@ class PiplApi_SearchAPIRequest
         //
         // Each of the arguments that should have a string that accepts both
         // strings.
+        
+        $this->base_url = $this->get_effective_base_url($base_url);
+        $this->api_version = $this->get_effective_api_version($api_version);
 
         # Set default configuration
         if (is_null(self::$default_configuration)) {
@@ -131,6 +166,10 @@ class PiplApi_SearchAPIRequest
 
         if (!empty($search_params['username'])) {
             $person->add_fields(array(new PiplApi_Username(array('content' => $search_params['username']))));
+        }
+
+        if (!empty($search_params['vin'])) {
+            $person->add_fields(array(new PiplApi_Vehicle(array('vin' => $search_params['vin']))));
         }
 
         if (!empty($search_params['user_id'])) {
@@ -225,7 +264,7 @@ class PiplApi_SearchAPIRequest
         }
 
         if (!$this->person->is_searchable()) {
-            throw new InvalidArgumentException('No valid name/username/phone/email/address/user_id/url in request');
+            throw new InvalidArgumentException('No valid name/username/phone/email/address/user_id/url/vin in request');
         }
     }
 
@@ -269,7 +308,7 @@ class PiplApi_SearchAPIRequest
             CURLOPT_HEADER => 1,
             CURLOPT_VERBOSE => 0,
             CURLOPT_URL => $url,
-            CURLOPT_USERAGENT => PiplApi_Utils::PIPLAPI_USERAGENT,
+            CURLOPT_USERAGENT => PiplApi_Utils::get_user_agent(),
             CURLOPT_POST => count($params),
             CURLOPT_POSTFIELDS => $params,
             CURLOPT_HTTPHEADER => array('Expect:')
@@ -352,7 +391,9 @@ class PiplApi_SearchAPIRequest
     private function get_base_url()
     {
         $prefix = $this->get_effective_configuration()->use_https ? "https://" : "http://";
-        return $prefix . self::$base_url;
+        $effective_url = $prefix . $this->base_url . 'v' . $this->api_version . '/?';
+
+        return $effective_url;
     }
 
     private function extract_headers_from_curl($header_raw)
