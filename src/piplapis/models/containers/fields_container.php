@@ -12,6 +12,7 @@ require_once dirname(__FILE__) . '/../fields/email.php';
 require_once dirname(__FILE__) . '/../fields/job.php';
 require_once dirname(__FILE__) . '/../fields/origin_country.php';
 require_once dirname(__FILE__) . '/../fields/username.php';
+require_once dirname(__FILE__) . '/../fields/vehicle.php';
 require_once dirname(__FILE__) . '/../fields/user_id.php';
 require_once dirname(__FILE__) . '/../fields/url.php';
 require_once dirname(__FILE__) . '/../fields/language.php';
@@ -32,6 +33,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
     public $educations = array();
     public $images = array();
     public $usernames = array();
+    public $vehicles = array();
     public $user_ids = array();
     public $urls = array();
     public $dob;
@@ -49,6 +51,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
         'PiplApi_Education' => 'educations',
         'PiplApi_Image' => 'images',
         'PiplApi_Username' => 'usernames',
+        'PiplApi_Vehicle' => 'vehicles',
         'PiplApi_UserID' => 'user_ids',
         'PiplApi_URL' => 'urls'
     );
@@ -107,7 +110,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
         return $allfields;
     }
 
-    public function fields_from_array($d)
+    public function fields_from_array($d, $is_query=false)
     {
         // Load the fields from the dict, return an array with all the fields.
 
@@ -119,7 +122,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
                 $field_array = $d[$container];
                 foreach ($field_array as $x) {
                     $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
-                    $fields[] = call_user_func($from_array_func, $field_cls, $x);
+                    $fields[] = call_user_func($from_array_func, $field_cls, $x, $is_query);
                 }
             }
         }
@@ -128,7 +131,7 @@ class PiplApi_FieldsContainer implements JsonSerializable
             if (array_key_exists($container, $d)) {
                 $field_array = $d[$container];
                 $from_array_func = method_exists($field_cls, 'from_array') ? array($field_cls, 'from_array') : array('PiplApi_Field', 'from_array');
-                $fields[] = call_user_func($from_array_func, $field_cls, $field_array);
+                $fields[] = call_user_func($from_array_func, $field_cls, $field_array, $is_query);
             }
         }
         return $fields;
@@ -157,6 +160,10 @@ class PiplApi_FieldsContainer implements JsonSerializable
             }
         }
         return $d;
+    }
+
+    public function get_containers(){
+        return array_merge($this->CLASS_CONTAINER, $this->singular_fields);
     }
 
     /**

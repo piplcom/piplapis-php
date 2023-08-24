@@ -16,11 +16,20 @@ class PiplApi_SearchRequestConfiguration
     public $infer_persons = NULL;
     public $top_match = NULL;
 
-    function __construct($api_key = "YOUR_KEY", $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
+    private function get_effective_api_key($api_key){
+        if ($api_key){
+            return $api_key;
+        }
+
+        return getenv("PIPL_API_KEY");
+        
+    }
+
+    function __construct($api_key = NULL, $minimum_probability = NULL, $minimum_match = NULL, $show_sources = NULL,
                          $live_feeds = NULL, $hide_sponsored = NULL, $use_https = true, $match_requirements = NULL,
                          $source_category_requirements = NULL, $infer_persons = NULL, $top_match = NULL)
     {
-        $this->api_key = $api_key;
+        $this->api_key = $this->get_effective_api_key($api_key);
         $this->minimum_probability = $minimum_probability;
         $this->minimum_match = $minimum_match;
         $this->show_sources = $show_sources;

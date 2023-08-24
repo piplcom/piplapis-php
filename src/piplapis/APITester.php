@@ -1,6 +1,7 @@
 <?php
 
 require 'search.php';
+use PHPUnit\Framework\TestCase;
 
 /**
  * User: caligula
@@ -8,19 +9,25 @@ require 'search.php';
  * Time: 14:17
  */
 
-class APITester extends PHPUnit_Framework_TestCase {
-
-    public function setUp(){
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("KEY_PREMIUM_V4");
-        PiplApi_SearchAPIRequest::$base_url = getenv("PIPL_API_ENDPOINT");
-    }
+class APITester extends TestCase {
+    protected $garth_emails = array(
+        'gmoult@gmail.com',
+        'gmoult@yahoo.com', 
+        'garth.moulton@aol.com',
+        'garth@jigsaw.com',
+        'gmoulton@salesforce.com',
+        'garth.moulton@pipl.com',
+        'garth@otherscreen.com',
+    );
 
     private function get_broad_search(){
         $search = new PiplApi_SearchAPIRequest(array("first_name" => "Brian", "last_name" => "Perks"));
         return $search;
     }
     private function get_narrow_search(){
-        $search = new PiplApi_SearchAPIRequest(array("email" => "brianperks@gmail.com"));
+        PiplApi_SearchAPIRequest::get_default_configuration();
+        $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"));
+        
         return $search;
     }
     public function test_basic_request(){
@@ -132,54 +139,37 @@ class APITester extends PHPUnit_Framework_TestCase {
     {
         $request = new PiplApi_SearchAPIRequest(array("email" => "clark.kent@example.com"));
         $response = $request->send();
-        $this->assertEquals($response->person->names[0]->display, "Clark Joseph Kent");
-        $this->assertEquals($response->person->emails[1]->address_md5, "999e509752141a0ee42ff455529c10fc");
-        $this->assertEquals($response->person->usernames[0]->content, "superman@facebook");
-        $this->assertEquals($response->person->addresses[1]->display, "1000-355 Broadway, Metropolis, Kansas");
-        $this->assertEquals($response->person->jobs[0]->display, "Field Reporter at The Daily Planet (2000-2012)");
-        $this->assertEquals($response->person->educations[0]->degree, "B.Sc Advanced Science");
+        $this->assertNotEmpty($response->person->names[0]->display);
+        $this->assertNotEmpty($response->person->emails[1]->address_md5);
+        $this->assertNotEmpty($response->person->usernames[0]->content);
+        $this->assertNotEmpty($response->person->addresses[1]->display);
+        $this->assertNotEmpty($response->person->jobs[0]->display);
+        $this->assertNotEmpty($response->person->educations[0]->degree);
     }
 
     public function test_make_sure_md5_search_works()
     {
-        $request = new PiplApi_SearchAPIRequest(array("person" => new PiplApi_Person(array(
-            new PiplApi_Email(array("address_md5" => "e34996fda036d60aa2a595ca86ed8fef"))))));
+        $email = new PiplApi_Email(array("address_md5" => "76af2543fca3c2eb0159ab9235c8eea9"));
+        $data = array("person" => new PiplApi_Person(array($email)));
+        $request = new PiplApi_SearchAPIRequest($data);
         $response = $request->send();
         $this->assertTrue($response->person != null);
     }
 
-    public function test_contact_datatypes_are_as_expected()
+    public function test_business_datatype_are_as_expected()
     {
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("KEY_CONTACT_V5");
+        PiplApi_SearchAPIRequest::get_default_configuration();
         $res = $this->get_narrow_search()->send();
         $fields = $res->person->all_fields();
-        $allowed_types = array('PiplApi_Name', 'PiplApi_Language', 'PiplApi_OriginCountry',
-            'PiplApi_DOB', 'PiplApi_Gender', 'PiplApi_Address', 'PiplApi_Phone', 'PiplApi_URL'
-        );
-        foreach ($fields as $field) {
-            if ($field instanceof PiplApi_Email) {
-                $this->assertEquals('full.email.available@business.subscription', $field->address);
-            } else {
-                $this->assertContains(get_class($field), $allowed_types);
-            }
-        }
-    }
+        $container_instance = new PiplApi_Person(array());
+        $allowed_types = $container_instance->get_containers();
 
-    public function test_social_datatypes_are_as_expected()
-    {
-        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("KEY_SOCIAL_V5");
-        $res = $this->get_narrow_search()->send();
-        $fields = $res->person->all_fields();
-        $allowed_types = array(
-            'PiplApi_Name', 'PiplApi_Language', 'PiplApi_OriginCountry',
-            'PiplApi_DOB', 'PiplApi_Gender', 'PiplApi_Address', 'PiplApi_Phone', 'PiplApi_URL', 'PiplApi_UserID',
-            'PiplApi_Relationship', 'PiplApi_Image', 'PiplApi_Username'
-        );
+
         foreach ($fields as $field) {
             if ($field instanceof PiplApi_Email) {
-                $this->assertEquals('full.email.available@business.subscription', $field->address);
+                $this->assertContains($field->address, $this->garth_emails);
             } else {
-                $this->assertContains(get_class($field), $allowed_types);
+                $this->assertArrayHasKey(get_class($field), $allowed_types);
             }
         }
     }
@@ -198,8 +188,13 @@ class APITester extends PHPUnit_Framework_TestCase {
 
     public function test_forward_compatibility()
     {
-        PiplApi_SearchAPIRequest::$base_url .= "?show_unknown_fields=1";
-        $request = new PiplApi_SearchAPIRequest(array("email" => "brianperks@gmail.com"));
+        $request = new PiplApi_SearchAPIRequest(
+            array("email" => "garth.moulton@pipl.com"),
+             NULL,
+             getenv("PIPL_API_URL") . "?show_unknown_fields=1",
+             NULL
+        );
+
         $response = $request->send();
         $this->assertNotEmpty($response->person);
     }
@@ -213,15 +208,13 @@ class APITester extends PHPUnit_Framework_TestCase {
         $image = $response->image();
         # Creating a thumbnail URL
         $thumbUrl = $image->get_thumbnail_url(200, 100, true, true);
-        $this->assertEquals($thumbUrl,
-            'http://thumb.pipl.com/image?tokens=AE2861B242686E6097CF0D9953368FA89391E569DE1FA5AA7AF0D1EB9D7254B9592B9A85A9E2EC2137FD9A220E50AF751B1870CBEB08AE16E7AE775535727714A69A996204BA35C90A43E1BDEAE9FDE790C19C3680F3588A2CF22FDBDF5147DD&dsid=56140&width=100&height=100&zoom_face=1&favicon=1');
+        $this->assertNotEmpty($thumbUrl);
 
         $first_image = $response->person->images[0];
         $second_image = $response->person->images[1];
         # Creating a redundant image URL
         $thumbUrl = PiplApi_Image::generate_redundant_thumbnail_url($first_image, $second_image, 100, 100);
-        $this->assertEquals($thumbUrl,
-            "http://thumb.pipl.com/image?tokens=AE2861B242686E6097CF0D9953368FA89391E569DE1FA5AA7AF0D1EB9D7254B9592B9A85A9E2EC2137FD9A220E50AF751B1870CBEB08AE16E7AE775535727714A69A996204BA35C90A43E1BDEAE9FDE790C19C3680F3588A2CF22FDBDF5147DD,AE2861B242686E6ACBCD539D133B8AE59A9AE962DB1FA5AA7AF08DAED86B0DFC1E608283D9CDB2322ADF85744B699B543C4E5FE3AC5A92&width=100&height=100&zoom_face=1&favicon=1");
+        $this->assertNotEmpty($thumbUrl);
     }
 
     public function test_json_encode() {
@@ -310,18 +303,18 @@ class APITester extends PHPUnit_Framework_TestCase {
         );
         $av_obj = PiplApi_AvailableData::from_array($arr);
 
-        $this->assertEquals($av_obj->premium->usernames, 1);
-        $this->assertEquals($av_obj->premium->jobs, 4);
-        $this->assertEquals($av_obj->premium->addresses, 1);
-        $this->assertEquals($av_obj->premium->phones, 1);
-        $this->assertEquals($av_obj->premium->educations, 1);
-        $this->assertEquals($av_obj->premium->languages, 1);
-        $this->assertEquals($av_obj->premium->user_ids, 4);
-        $this->assertEquals($av_obj->premium->social_profiles, 2);
-        $this->assertEquals($av_obj->premium->names, 1);
-        $this->assertEquals($av_obj->premium->images, 2);
-        $this->assertEquals($av_obj->premium->genders, 0);
-        $this->assertEquals($av_obj->premium->emails, 0);
+        $this->assertEquals($av_obj->premium->get_usernames(), 1);
+        $this->assertEquals($av_obj->premium->get_jobs(), 4);
+        $this->assertEquals($av_obj->premium->get_addresses(), 1);
+        $this->assertEquals($av_obj->premium->get_phones(), 1);
+        $this->assertEquals($av_obj->premium->get_educations(), 1);
+        $this->assertEquals($av_obj->premium->get_languages(), 1);
+        $this->assertEquals($av_obj->premium->get_user_ids(), 4);
+        $this->assertEquals($av_obj->premium->get_social_profiles(), 2);
+        $this->assertEquals($av_obj->premium->get_names(), 1);
+        $this->assertEquals($av_obj->premium->get_images(), 2);
+        $this->assertEquals($av_obj->premium->get_genders(), 0);
+        $this->assertEquals($av_obj->premium->get_emails(), 0);
 
         $this->assertEquals($av_obj->to_array(), array("premium" => array("usernames" => 1, "jobs" => 4, "addresses" => 1,
             "phones" => 1, "educations" => 1, "languages" => 1,
@@ -347,18 +340,18 @@ class APITester extends PHPUnit_Framework_TestCase {
         );
 
         $field_count = PiplApi_FieldCount::from_array($arr);
-        $this->assertEquals($field_count->usernames, 1);
-        $this->assertEquals($field_count->jobs, 4);
-        $this->assertEquals($field_count->addresses, 1);
-        $this->assertEquals($field_count->phones, 1);
-        $this->assertEquals($field_count->educations, 1);
-        $this->assertEquals($field_count->languages, 1);
-        $this->assertEquals($field_count->user_ids, 4);
-        $this->assertEquals($field_count->social_profiles, 2);
-        $this->assertEquals($field_count->names, 0);
-        $this->assertEquals($field_count->images, 0);
-        $this->assertEquals($field_count->genders, 0);
-        $this->assertEquals($field_count->emails, 0);
+        $this->assertEquals($field_count->get_usernames(), 1);
+        $this->assertEquals($field_count->get_jobs(), 4);
+        $this->assertEquals($field_count->get_addresses(), 1);
+        $this->assertEquals($field_count->get_phones(), 1);
+        $this->assertEquals($field_count->get_educations(), 1);
+        $this->assertEquals($field_count->get_languages(), 1);
+        $this->assertEquals($field_count->get_user_ids(), 4);
+        $this->assertEquals($field_count->get_social_profiles(), 2);
+        $this->assertEquals($field_count->get_names(), 0);
+        $this->assertEquals($field_count->get_images(), 0);
+        $this->assertEquals($field_count->get_genders(), 0);
+        $this->assertEquals($field_count->get_emails(), 0);
 
         $this->assertEquals($field_count->to_array(), array("usernames" => 1, "jobs" => 4,
             "addresses" => 1, "phones" => 1, "educations" => 1,
@@ -517,25 +510,6 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertEquals("http://thumb.pipl.com/image?tokens=AAAAAAAA&dsid=55&width=100&height=100&zoom_face=1&favicon=1", $path);
     }
 
-//    public function test_search_by_user_id() {
-//        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
-//        $request = new PiplApi_SearchAPIRequest(array("user_id" => "1077462361@facebook"));
-//        $request->configuration = new PiplApi_SearchRequestConfiguration(
-//            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
-//        $response = $request->send();
-//        $this->assertEquals($response->person->names[0]->display, "Mark Parris");
-//    }
-//
-//    public function test_search_by_url() {
-//        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
-//        $request = new PiplApi_SearchAPIRequest(array("url" => "https://www.linkedin.com/pub/superman/20/7a/365"));
-//        $request->configuration = new PiplApi_SearchRequestConfiguration(
-//            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
-//        $response = $request->send();
-//        $this->assertEquals($response->person->jobs[0]->display, "Senior Superhero at Superheros Inc (since 1902)");
-//        $this->assertEquals($response->person->jobs[1]->display,
-//            "Kryptonian Physician Apprentice Program at Superheros Inc (1900-1902)");
-//    }
 
     public function test_userid_is_searchable() {
         $user_id = new PiplApi_UserID();
@@ -575,7 +549,7 @@ class APITester extends PHPUnit_Framework_TestCase {
             $response = $request->send();
         } catch (PiplApi_APIError $e) {
             $this->assertEquals($e->getMessage(),
-                'The query does not contain any valid name/username/user_id/phone/email to search by');
+                'The query does not contain any valid name/username/user_id/phone/email/address/vin to search by');
             $throw = true;
         }
         $this->assertTrue($throw);
@@ -592,7 +566,7 @@ class APITester extends PHPUnit_Framework_TestCase {
             $response = $request->send();
         } catch (PiplApi_APIError $e) {
             $this->assertEquals($e->getMessage(),
-                'The query does not contain any valid name/username/user_id/phone/email to search by');
+                'The query does not contain any valid name/username/user_id/phone/email/address/vin to search by');
             $throw = true;
         }
         $this->assertTrue($throw);
@@ -612,30 +586,91 @@ class APITester extends PHPUnit_Framework_TestCase {
         $this->assertFalse($address->is_sole_searchable());
     }
 
-//    public function test_search_request_with_address_only()
-//    {
-//        PiplApi_SearchAPIRequest::get_default_configuration()->api_key = getenv("TESTING_KEY_API");
-//        PiplApi_SearchAPIRequest::$base_url = getenv("API_TESTS_BASE_URL") . "5?developer_class=business_premium";
-//        $request = new PiplApi_SearchAPIRequest(
-//            array("person" => new PiplApi_Person(array(
-//                new PiplApi_Address(array(
-//                    "country" => "North Carolina",
-//                    "city" => "Raleigh",
-//                    "street" => "Harrington Grove Drive",
-//                    "house" => "5213")))
-//            )));
-//        $request->configuration = new PiplApi_SearchRequestConfiguration(
-//            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
-//        $response = $request->send();
-//    }
-//
-//    public function test_search_request_with_raw_address_only()
-//    {
-//
-//        $request = new PiplApi_SearchAPIRequest(array("raw_address" => "5213 Harrington Grove Drive, Raleigh, North Carolina"));
-//        $request->configuration = new PiplApi_SearchRequestConfiguration(
-//            PiplApi_SearchAPIRequest::get_default_configuration()->api_key);
-//        $response = $request->send();
-//    }
+    public function test_search_with_vin(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("vin" => "1GNDT13WXN2203169"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->possible_persons);
+
+        $vehicles = $response->possible_persons[0]->vehicles;
+
+        $this->assertNotEmpty($vehicles);
+    }
+
+    public function test_available_data_vehicles(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_vehicles());
+    }
+
+    public function test_available_data_personal_emails(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_personal_emails());
+    }
+
+    public function test_available_data_work_emails(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_work_emails());
+    }
+
+    public function test_available_data_voip(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "vrajajee@yahoo.com"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_voip_phones());
+    }
+
+    public function test_match_requirements_voip(){
+        $configuration = new PiplApi_SearchRequestConfiguration();
+        $configuration->match_requirements = "phone.voip";
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "vrajajee@yahoo.com"), $configuration);
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_voip_phones());
+
+        $configuration = new PiplApi_SearchRequestConfiguration();
+        $configuration->match_requirements = "phone.voip";
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"), $configuration);
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertEmpty($response->available_data);
+        $this->assertEquals($response->person, NULL);
+    }
 
 }

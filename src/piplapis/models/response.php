@@ -257,7 +257,7 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
         $warnings = !empty($d['warnings']) ? $d['warnings'] : array();
         $query = NULL;
         if (!empty($d['query'])) {
-            $query = PiplApi_Person::from_array($d['query']);
+            $query = PiplApi_Person::from_array($d['query'], true);
         }
         $person = NULL;
         if (!empty($d['person'])) {
@@ -351,6 +351,11 @@ class PiplApi_SearchAPIResponse implements JsonSerializable
     public function username()
     {
         return ($this->person && count($this->person->usernames) > 0) ? $this->person->usernames[0] : NULL;
+    }
+
+    public function vehicle()
+    {
+        return ($this->person && count($this->person->vehicles) > 0) ? $this->person->vehicles[0] : NULL;
     }
 
     public function user_id()

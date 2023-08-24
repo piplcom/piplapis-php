@@ -7,9 +7,9 @@ class PiplApi_Phone extends PiplApi_Field
 {
     // A phone number of a person.
 
-    protected $attributes = array('type');
+    protected $attributes = array('type', 'do_not_call', 'voip');
     protected $children = array('country_code', 'number', 'extension', 'raw', 'display', 'display_international');
-    protected $types_set = array('mobile', 'home_phone', 'home_fax', 'work_phone', 'work_fax', 'pager');
+    protected $types_set = array('mobile', 'home_phone', 'home_fax', 'work_phone', 'work_fax', 'pager', 'voip');
 
     function __construct($params=array())
     {
@@ -23,29 +23,45 @@ class PiplApi_Phone extends PiplApi_Field
         {
             $this->country_code = $country_code;
         }
+        
         if (!empty($number))
         {
             $this->number = $number;
         }
+        
         if (!empty($extension))
         {
             $this->extension = $extension;
         }
+        
         if (!empty($raw))
         {
             $this->raw = $raw;
         }
+
         if (!empty($type))
         {
             $this->type = $type;
         }
+
         if (!empty($display))
         {
             $this->display = $display;
         }
+
         if (!empty($display_international))
         {
             $this->display_international = $display_international;
+        }
+
+        if (!empty($do_not_call))
+        {
+            $this->do_not_call = $do_not_call;
+        }
+
+        if (!empty($voip))
+        {
+            $this->voip = $voip;
         }
     }
 

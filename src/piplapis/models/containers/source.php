@@ -86,9 +86,22 @@ class PiplApi_Source extends PiplApi_FieldsContainer
         $valid_since = !empty($params['@valid_since']) ? $params['@valid_since'] : NULL;
         if (!empty($valid_since)){ $valid_since = PiplApi_Utils::piplapi_str_to_datetime($valid_since); }
 
-        $instance = new self(array(), $match, $name, $category, $origin_url, $sponsored, $domain, $person_id,
-            $source_id, $premium, $valid_since);
+        $instance = new self(
+            array(), 
+            $match, 
+            $name, 
+            $category, 
+            $origin_url, 
+            $sponsored, 
+            $domain, 
+            $person_id,
+            $source_id, 
+            $premium, 
+            $valid_since
+        );
+        
         $instance->add_fields($instance->fields_from_array($params));
+        
         return $instance;
     }
 

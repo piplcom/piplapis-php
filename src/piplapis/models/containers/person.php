@@ -60,7 +60,16 @@ class PiplApi_Person extends PiplApi_FieldsContainer
     {
         // A bool value that indicates whether the person has enough data and
         // can be sent as a query to the API.
-        $all = array_merge($this->names, $this->emails, $this->phones, $this->usernames, $this->user_ids, $this->urls);
+        $all = array_merge(
+            $this->names,
+            $this->emails, 
+            $this->phones, 
+            $this->usernames, 
+            $this->vehicles, 
+            $this->user_ids, 
+            $this->urls
+        );
+
         $searchable = array_filter($all, function($field) {
             return $field->is_searchable();
         });
@@ -76,15 +85,24 @@ class PiplApi_Person extends PiplApi_FieldsContainer
 
         // For example: names/usernames that are too short, emails that are
         // invalid etc.
-        $all = array_merge($this->names, $this->emails, $this->phones, $this->usernames, $this->addresses,
-            $this->user_ids, $this->urls, array($this->dob));
+        $all = array_merge(
+            $this->names, 
+            $this->emails, 
+            $this->phones, 
+            $this->usernames, 
+            $this->vehicles, 
+            $this->addresses,
+            $this->user_ids, 
+            $this->urls, 
+            array($this->dob)
+        );
         $unsearchable = array_filter($all, function($field) {
             return $field && !$field->is_searchable();
         });
         return $unsearchable;
     }
 
-    public static function from_array($params)
+    public static function from_array($params, $is_query=false)
     {
         // Transform the array to a person object and return it.
         $id = !empty($params['@id']) ? $params['@id'] : NULL;
@@ -93,7 +111,7 @@ class PiplApi_Person extends PiplApi_FieldsContainer
         $inferred = !empty($params['@inferred']) ? $params['@inferred'] : false;
 
         $instance = new self(array(), $id, $search_pointer, $match, $inferred);
-        $instance->add_fields($instance->fields_from_array($params));
+        $instance->add_fields($instance->fields_from_array($params, $is_query));
         return $instance;
     }
 
