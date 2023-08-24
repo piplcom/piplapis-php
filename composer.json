@@ -35,5 +35,8 @@
       "src/piplapis/models/fields/",
       "src/piplapis/models/containers/"
     ]
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7"
   }
 }

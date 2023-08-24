@@ -143,4 +143,60 @@ class PiplApi_FieldCount
         }
         return $res;
     }
+
+    public function get_usernames(){
+        return $this->usernames;
+    }
+
+    public function get_emails(){
+        return $this->emails;
+    }
+
+    public function get_phones(){
+        return $this->phones;
+    }   
+
+    public function get_addresses(){
+        return $this->addresses;
+    }
+
+    public function get_names(){
+        return $this->names;
+    }
+
+    public function get_jobs(){
+        return $this->jobs;
+    }
+
+    public function get_educations(){
+        return $this->educations;
+    }
+
+    public function get_images(){
+        return $this->images;
+    }
+
+    public function get_user_ids(){
+        return $this->user_ids;
+    }
+
+    public function get_dobs(){
+        return $this->dobs;
+    }
+
+    public function get_vehicles(){
+        return $this->vehicles;
+    }
+
+    public function get_languages(){
+        return $this->languages;
+    }
+
+    public function get_social_profiles(){
+        return $this->social_profiles;
+    }
+
+    public function get_genders(){
+        return $this->genders;
+    }
 }

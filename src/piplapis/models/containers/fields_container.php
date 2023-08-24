@@ -162,6 +162,10 @@ class PiplApi_FieldsContainer implements JsonSerializable
         return $d;
     }
 
+    public function get_containers(){
+        return array_merge($this->CLASS_CONTAINER, $this->singular_fields);
+    }
+
     /**
      * Specify data which should be serialized to JSON
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
