@@ -586,4 +586,91 @@ class APITester extends TestCase {
         $this->assertFalse($address->is_sole_searchable());
     }
 
+    public function test_search_with_vin(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("vin" => "1GNDT13WXN2203169"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->possible_persons);
+
+        $vehicles = $response->possible_persons[0]->vehicles;
+
+        $this->assertNotEmpty($vehicles);
+    }
+
+    public function test_available_data_vehicles(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_vehicles());
+    }
+
+    public function test_available_data_personal_emails(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_personal_emails());
+    }
+
+    public function test_available_data_work_emails(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_work_emails());
+    }
+
+    public function test_available_data_voip(){
+        PiplApi_SearchAPIRequest::get_default_configuration();
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "vrajajee@yahoo.com"));
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_voip_phones());
+    }
+
+    public function test_match_requirements_voip(){
+        $configuration = new PiplApi_SearchRequestConfiguration();
+        $configuration->match_requirements = "phone.voip";
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "vrajajee@yahoo.com"), $configuration);
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertNotEmpty($response->available_data);
+        $this->assertGreaterThan(0, $response->available_data->premium->get_voip_phones());
+
+        $configuration = new PiplApi_SearchRequestConfiguration();
+        $configuration->match_requirements = "phone.voip";
+
+        $search = new PiplApi_SearchAPIRequest(array("email" => "garth.moulton@pipl.com"), $configuration);
+
+        $response = $search->send();
+
+        $this->assertEquals(200, $response->http_status_code);
+        $this->assertEmpty($response->available_data);
+        $this->assertEquals($response->person, NULL);
+    }
+
 }

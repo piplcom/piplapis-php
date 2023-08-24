@@ -199,4 +199,14 @@ class PiplApi_FieldCount
     public function get_genders(){
         return $this->genders;
     }
+
+    public function get_personal_emails(){
+        return $this->personal_emails;
+    }
+    public function get_work_emails(){
+        return $this->work_emails;
+    }
+    public function get_voip_phones(){
+        return $this->voip_phones;
+    }
 }

@@ -138,20 +138,19 @@ class PiplApi_Vehicle extends PiplApi_Field
     public static function is_vin_valid($vin){
         $condition = (
             !empty($vin) &&
-            strlen($vin) !== 17 &&
+            strlen($vin) === 17 &&
             !PiplApi_Utils::in_string(array('i', 'o', 'q'), strtolower($vin)) &&
             !in_array(strtolower($vin[9]), array('u', 'z', '0')) &&
             ctype_alnum($vin) &&
             self::validate_vin_checksum($vin)
         );
         
-        
         return $condition;
     }
 
     public function is_searchable()
     {
-        return $this->is_vin_valid;
+        return $this->is_vin_valid($this->vin);
     }
 
     public function __toString(){
