@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  django:
+    restart: on-failure
+    image: piplsearch/php-sdk:development
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash -c "tail -f /dev/null"
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/sdk
+
+    ports:
+      - '3999:3999'
